@@ -1,0 +1,46 @@
+------------------------------------
+7 Tabel
+
+Tabela: [SFibersStackDDLookupTable]
+
+_id - INT, AUTO
+par - TEXT(?) [wszystkie parametry]
+valid_from -  DATETIME
+valid_to - DATETIME
+version - INT
+remarks - VARCHAR (255)
+-------------------------------------
+
+Tabel - spis plików i "runów"
+
+XX5678765678.hld  (10^6 zdarzan)
+
+_id - INT, AUTO
+file_name - VARCHAR(255)
+file_start_time - DATETIME
+file_stop_time - DATETIME
+remark - VARCHAR(255)
+
+----------------------------------
+
+./nazwa_programu_analizy XX5678765678.hld out 1000 nazwe_pliku_parametrow  
+
+
+1. Puszczamy program do analizy.
+2. Odczytujemy nazwę pliku do analizy.
+3. W bazie danych za pomoca SELECT szukamy kiedy był zebrany (file_start_time, file_stop_time).
+4. Po odczukanej dacie (file_start_time, file_stop_time) - szukamy zestawu parametrów.
+   a.) gdy mamy kilka wersji parametrów, dajemy uzytkownikowu wybór wersji.
+
+-------
+Workbench - do rysowania/projektowania diagramu ERD
+DataGrip (Jetbrains) - do rysowania/projektowania diagramu ERD
+
+
+Validity(conf_id, from, to)
+ClassName(conf_id, version, parameters)
+
+
+
+
+
