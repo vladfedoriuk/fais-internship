@@ -5,7 +5,7 @@ The repository for the parameters parsing/extracting scripts.
 - To use the scripts, you need to get **pyenv**: https://realpython.com/intro-to-pyenv/
 - Nextly, create and activate virtual environment:
     
-    1. `pyenv install 3.9.1` - install ppython 3.9.1
+    1. `pyenv install 3.9.1` - install python 3.9.1
 
     2. `pyenv virtualenv 3.9.1 <environment name>` - create a virtual environment
 
