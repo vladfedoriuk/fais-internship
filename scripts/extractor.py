@@ -1,4 +1,4 @@
-from utils.db import ConfTableFactory, engine, DB, Files
+from utils.db import ConfTableFactory, engine, DB, Files, tables_query, EXCLUDE
 from utils.time import time_patterns_set, r_time_patterns, validate_date
 import argparse
 from datetime import datetime
@@ -12,11 +12,6 @@ import re
 parser = argparse.ArgumentParser()
 connection = engine.connect()
 factory = ConfTableFactory()
-
-tables_query = 'SELECT table_name FROM information_schema.tables ' + \
-    f'WHERE table_name NOT IN ("configuration", "files") AND ' + \
-        f'table_schema = \"{DB["database"]}\";'
-
 
 def process_run(tables, args, run=True):
     
@@ -135,7 +130,8 @@ if __name__ == '__main__':
     table_names = connection.execute(tables_query)
     tables = {}
     for table_name in table_names:
-        tables[table_name[0]] = factory(table_name[0])
+        if not any(re.match(x, table_name[0]) for x in EXCLUDE):
+            tables[table_name[0]] = factory(table_name[0])
     
     args = parser.parse_args()
     

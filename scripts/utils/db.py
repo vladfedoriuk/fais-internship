@@ -24,6 +24,15 @@ DB = {
     'database': 'praktyki'
 }
 
+tables_query = 'SELECT table_name FROM information_schema.tables WHERE ' + \
+    'table_name NOT IN ("configuration", "files")' + \
+            f'AND table_schema = \"{DB["database"]}\";'
+
+EXCLUDE = {
+    r'auth.+',
+    r'django.+'
+}
+
 engine = create_engine(
     f"{DB['dialect']}://" + \
         f"{DB['username']}:" + \

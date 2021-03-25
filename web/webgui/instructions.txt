@@ -1,0 +1,19 @@
+1) fill the database configuration:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'praktyki',
+        'USER': os.environ.get('username'),
+        'PASSWORD': os.environ.get('password'),
+        'HOST': '127.0.0.1',
+        'PORT': 3306
+    }
+}
+
+2) create the models:
+    python manage.py inspectdb > models.py
+3) add models.py, register the app
+3) Change names, manage=True, verbose_name, verbose_name_plural
+4) Create superuser
+    python manage.py createsuperuser
+5) Change admin, register models etc...

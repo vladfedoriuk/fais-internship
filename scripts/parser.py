@@ -5,7 +5,7 @@ import argparse
 from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timedelta
-from utils.db import ConfTableFactory, Files, engine
+from utils.db import ConfTableFactory, Files, engine, tables_query
 from utils.time import time_patterns_set, r_time_patterns, validate_date
 from sqlalchemy.sql import select
 
