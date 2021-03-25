@@ -18,29 +18,41 @@ tables_query = 'SELECT table_name FROM information_schema.tables ' + \
         f'table_schema = \"{DB["database"]}\";'
 
 
-def process_run(tables, args):
+def process_run(tables, args, run=True):
     
-    try:
-        run_id = int(args.run)
-    except ValueError:
-        logging.error('The run id shoud be a positive integer')
-        sys.exit()
+    if run:
+        try:
+            run_id = int(args.run)
+        except ValueError:
+            logging.error('The run id shoud be a positive integer')
+            sys.exit()
+    else:
+        file = args.file
     
     versions = {}
+    
     for table_name, table in tables.items():
         j = join(
             Files, table, 
             (Files.c.start_time >= table.c.valid_from) & \
                 (Files.c.stop_time <= table.c.valid_to)
         )
-        results = connection.execute(
-            select(
-                table.c.valid_from, 
-                table.c.valid_to, 
-                table.c.version, 
-                table.c.remarks
-            ).select_from(j).where(Files.c.run_id == run_id)
-        ).fetchall()
+        if run:
+            s = select(
+                    table.c.valid_from, 
+                    table.c.valid_to, 
+                    table.c.version, 
+                    table.c.remarks
+                ).select_from(j).where(Files.c.run_id == run_id)
+        else:
+            s = select(
+                    table.c.valid_from, 
+                    table.c.valid_to, 
+                    table.c.version, 
+                    table.c.remarks
+                ).select_from(j).where(Files.c.file_name == file)
+            
+        results = connection.execute(s).fetchall()
         versions[table_name] = set(res for res in results)
     
     available_versions = reduce(lambda s1, s2: s1 & s2, versions.values())
@@ -117,6 +129,13 @@ if __name__ == '__main__':
                         help='The name of the output file')
     parser.add_argument('-r', '--run', 
                         help="The run id to extract datetimes from", type=int)
+    parser.add_argument('-f', '--file', 
+                        help="The run file name to extract datetimes from")
+    
+    table_names = connection.execute(tables_query)
+    tables = {}
+    for table_name in table_names:
+        tables[table_name[0]] = factory(table_name[0])
     
     args = parser.parse_args()
     
@@ -126,13 +145,10 @@ if __name__ == '__main__':
     if args.validto is not None:   
         valid_to = validate_date(args.validto, 'validto')
     
-    table_names = connection.execute(tables_query)
-    tables = {}
-    for table_name in table_names:
-        tables[table_name[0]] = factory(table_name[0])
-        
-    if args.run is not None:
-        valid_from, valid_to, version = process_run(tables, args)
+    if args.file is not None:
+        valid_from, valid_to, version = process_run(tables, args, run=False)
+    elif args.run is not None:
+        valid_from, valid_to, version = process_run(tables, args, run=True)
     else:
         version = process_dates(tables, args)
         

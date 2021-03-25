@@ -90,9 +90,13 @@ if __name__ == '__main__':
     parser.add_argument("version",
                         help='The version of the configuration')
     parser.add_argument("-rf", "--runfrom",
-                        help=f'The run from which the confiuration is valid', type=int)
+                        help=f'The run from which the configuration is valid', type=int)
     parser.add_argument('-rt', '--runto', 
                         help='The run up to which the configuration is valid', type=int)
+    parser.add_argument("-ff", "--filefrom",
+                        help=f'The run file from which the configuration is valid')
+    parser.add_argument('-ft', '--fileto', 
+                        help='The run file up to which the configuration is valid')
     parser.add_argument('-vf', '--validfrom',
                         help='The datetime from which the configuration is valid\n' + \
                             f'Accepted patterns: {r_time_patterns}')
@@ -126,7 +130,21 @@ if __name__ == '__main__':
                 Files.c.run_id==args.runto
             )
         ).fetchone()[0]
-            
+    
+    if args.filefrom is not None:
+        valid_from = connection.execute(
+            select(Files.c.start_time).where(
+                Files.c.file_name==args.filefrom
+            )
+        ).fetchone()[0] 
+    
+    if args.fileto is not None:
+        valid_to = connection.execute(
+            select(Files.c.start_time).where(
+                Files.c.file_name==args.fileto
+            )
+        ).fetchone()[0]  
+        
     if args.validfrom and not valid_from:
         valid_from = validate_date(args.validfrom, 'validfrom')
     
