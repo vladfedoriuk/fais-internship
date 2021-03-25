@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timedelta
 from utils.db import ConfTableFactory, Files, engine
-from utils.time import time_patterns_set, r_time_patterns
+from utils.time import time_patterns_set, r_time_patterns, validate_date
 from sqlalchemy.sql import select
 
 
@@ -94,9 +94,11 @@ if __name__ == '__main__':
     parser.add_argument('-rt', '--runto', 
                         help='The run up to which the configuration is valid', type=int)
     parser.add_argument('-vf', '--validfrom',
-                        help='The datetime from which the configuration is valid')
+                        help='The datetime from which the configuration is valid\n' + \
+                            f'Accepted patterns: {r_time_patterns}')
     parser.add_argument('-vt', '--validto', 
-                        help='The datetime up to which the configuration is valid')
+                        help='The datetime up to which the configuration is valid\n' + \
+                            f'Accepted patterns: {r_time_patterns}')
     parser.add_argument('--remarks', '-r',
                         help="The optional remarks about the configuration version")
     
@@ -105,16 +107,20 @@ if __name__ == '__main__':
     valid_from = None
     valid_to = None
     conf_file = args.conf
-    version = args.version
     
-    if args.runfrom:
+    try:
+        version = int(args.version)
+    except ValueError:
+        logging.error('Th version should be a positive integer')
+    
+    if args.runfrom is not None:
         valid_from = connection.execute(
             select(Files.c.start_time).where(
                 Files.c.run_id==args.runfrom
             )
         ).fetchone()[0]
     
-    if args.runto:
+    if args.runto is not None:
         valid_to = connection.execute(
             select(Files.c.start_time).where(
                 Files.c.run_id==args.runto
@@ -122,26 +128,10 @@ if __name__ == '__main__':
         ).fetchone()[0]
             
     if args.validfrom and not valid_from:
-        for pattern in time_patterns_set:
-            try:
-                valid_from = datetime.strptime(args.validfrom, pattern)
-                break
-            except ValueError:
-                pass 
-        else:
-            logging.error('No time pattern matched for valid_from. Use -h flag to see the whole pattern')
-            sys.exit()
+        valid_from = validate_date(args.validfrom, 'validfrom')
     
     if args.validto and not valid_to:
-        for pattern in time_patterns_set:
-            try:
-                valid_to = datetime.strptime(args.validto, pattern)
-                break
-            except ValueError:
-                pass 
-        else:
-            logging.error('No time pattern matched for valid_to. Use -h flag to see the whole pattern')
-            sys.exit()
+        valid_to = validate_date(args.valid_to, 'validto')
         
     write_to_database(
         conf_file=conf_file,

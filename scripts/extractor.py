@@ -1,5 +1,5 @@
 from utils.db import ConfTableFactory, engine, DB, Files
-from utils.time import time_patterns_set, r_time_patterns
+from utils.time import time_patterns_set, r_time_patterns, validate_date
 import argparse
 from datetime import datetime
 from sqlalchemy.sql import select, join
@@ -16,18 +16,6 @@ factory = ConfTableFactory()
 tables_query = 'SELECT table_name FROM information_schema.tables ' + \
     f'WHERE table_name NOT IN ("configuration", "files") AND ' + \
         f'table_schema = \"{DB["database"]}\";'
- 
- 
-def validate_date(date):
-    for pattern in time_patterns_set:
-        try:
-            valid_date = datetime.strptime(date, pattern)
-            return valid_date
-        except ValueError:
-            pass 
-    else:
-        logging.error('No time pattern matched for validfrom. Use -h flag to see the whole pattern')
-        sys.exit()
 
 
 def process_run(tables, args):
@@ -80,6 +68,7 @@ def process_run(tables, args):
  
  
 def process_dates(tables, args):
+    
     versions = {}
     for table_name, table in tables.items():
         query = select(table.c.version, table.c.remarks)\
@@ -132,10 +121,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     if args.validfrom is not None:
-        valid_from = validate_date(args.validfrom)
+        valid_from = validate_date(args.validfrom, 'validfrom')
         
     if args.validto is not None:   
-        valid_to = validate_date(args.validto)
+        valid_to = validate_date(args.validto, 'validto')
     
     table_names = connection.execute(tables_query)
     tables = {}

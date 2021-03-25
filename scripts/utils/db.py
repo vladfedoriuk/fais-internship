@@ -1,11 +1,19 @@
 import os
+import sys
 import logging
 from sqlalchemy import __version__ as sv
 from datetime import datetime
 from sqlalchemy import create_engine, Table, Column, \
     Integer, String, MetaData, DateTime, Text
     
-logging.info(f'Using sqlalchemy version: {sv}')
+logging.debug(f'Using sqlalchemy version: {sv}')
+
+if not os.environ.get('username', None):
+    logging.error('The \'username\' environment variable should be provided.')
+    sys.exit()
+if not os.environ.get('password', None):
+    logging.error('The \'password\' environment variable should be provided.')
+    sys.exit()
 
 DB = {
     'dialect': 'mysql',
