@@ -1,0 +1,12 @@
+{% extends "interact/base.html" %}
+
+{% block title %} Retrieve the configurations {% endblock %}
+
+{% block content %}
+    <div class="header-form">
+        <h1> Retrieve the configurations from the database. </h1>
+    </div>
+
+    {% include "interact/includes/forms/extract_form.html" with form=form %}
+
+{% endblock %}
