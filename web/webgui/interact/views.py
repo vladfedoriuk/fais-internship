@@ -46,6 +46,8 @@ class ExtractView(View):
     
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+        versions_table = None 
+        params = None
         if form.is_valid():
             cd = form.cleaned_data
             valid_from = cd.get('valid_from')
@@ -53,10 +55,7 @@ class ExtractView(View):
             version = cd.get('version')
             run = cd.get('run')
             filename = cd.get('filename')
-            
-            versions_table = None 
-            params = None
-            
+                        
             if valid_from and valid_to:
                 available_versions = self.extractor.process_dates(valid_from, valid_to)
             elif run:
