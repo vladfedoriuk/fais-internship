@@ -8,5 +8,43 @@
     </div>
 
     {% include "interact/includes/forms/extract_form.html" with form=form %}
+    
+    {%if versions is not None %}
+        <div class="alert alert-primary" role="alert">
+            <p>
+                You have not provided a version or the provided version does not exist.
+                Please, provide one of the following versions:
+            </p>
+        </div>
+
+        <div class="alert alert-secondary" role="alert">
+            <p>
+                If there are several configurations with the same version number,
+                provide the validity dates of the desired version in the form above.
+                (Otherwise, the first configuration that meets the requirements will be returned)
+            </p>
+        </div>
+        
+        <div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        {% for col in versions.columns %}
+                            <th scope="col"> {{ col }} </th>
+                        {% endfor %}
+                    <tr>
+                </thead>
+                <tbody>
+                    {% for index, row in versions.iterrows %}
+                        <tr>
+                        {% for item in row %}
+                            <td> {{ item }} </td>
+                        {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+    {% endif %}
 
 {% endblock %}
