@@ -1,17 +1,25 @@
 <div class="container">
   <form action={% url "interact:extract" %} method="POST">
     {% csrf_token %}
-    {{ form.non_field_errors }}
+    
+    <div class="text-danger">
+      {{ form.non_field_errors }}
+    </div>
+    
     <div class="row form-group">
       <div class="col">
-        {{ form.valid_from_date.errors }}
+        <div class="text-danger">
+          {{ form.valid_from_date.errors }}
+        </div>
         {{ form.valid_from_date.label_tag }}
         {{ form.valid_from_date }}
         <small id="date-from-help" class="form-text text-muted"> {{ form.valid_from_date.help_text }} </small>
       </div>
 
       <div class="col">
-        {{ form.valid_from_time.errors }}
+        <div class="text-danger">
+          {{ form.valid_from_time.errors }}
+        </div>
         {{ form.valid_from_time.label_tag }}
         {{ form.valid_from_time }}
         <small id="date-time-help" class="form-text text-muted"> {{ form.valid_from_time.help_text }} </small>
@@ -20,14 +28,18 @@
 
      <div class="row form-group">
       <div class="col">
-        {{ form.valid_to_date.errors }}
+        <div class="text-danger">
+          {{ form.valid_to_date.errors }}
+        </div>
         {{ form.valid_to_date.label_tag }}
         {{ form.valid_to_date }}
         <small id="date-to-help" class="form-text text-muted"> {{ form.valid_to_date.help_text }} </small>
       </div>
 
       <div class="col">
-        {{ form.valid_to_time.errors }}
+        <div class="text-danger">
+          {{ form.valid_to_time.errors }}
+        </div>
         {{ form.valid_to_time.label_tag }}
         {{ form.valid_to_time }}
         <small id="time-to-help" class="form-text text-muted"> {{ form.valid_to_time.help_text }} </small>
@@ -36,14 +48,18 @@
 
     <div class="row form-group">
       <div class="col-4">
-        {{ form.run.errors }}
+         <div class="text-danger">
+          {{ form.run.errors }}
+        </div>
         {{ form.run.label_tag }}
         {{ form.run }}
         <small id="run-help" class="form-text text-muted"> {{ form.run.help_text }} </small>
       </div>
 
       <div class="col-4">
-        {{ form.filename.errors }}
+         <div class="text-danger">
+          {{ form.filename.errors }}
+        </div>
         {{ form.filename.label_tag }}
         {{ form.filename }}
         <small id="filename-help" class="form-text text-muted"> {{ form.filename.help_text }} </small>
@@ -53,13 +69,14 @@
     
     <div class="row form-group">
       <div class="col-4">
-        {{ form.version.errors }}
+        <div class="text-danger">
+          {{ form.version.errors }}
+        </div>
         {{ form.version.label_tag }}
         {{ form.version }}
         <small id="version-help" class="form-text text-muted"> {{ form.version.help_text }} </small>
       </div>
     </div>
-
 
     <div class="row form-group">
       <div class="col">
