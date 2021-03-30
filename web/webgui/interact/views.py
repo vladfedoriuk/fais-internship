@@ -3,7 +3,7 @@ from .forms import ExtractForm
 import core.models 
 from django.views.decorators.http import require_http_methods
 from django.views import View
-from .scripts.extractor import Extractor
+from .scripts.extractor import Extractor, DateTimes, Run, FileName
 from django.http import FileResponse
 
 # Create your views here.
@@ -58,12 +58,13 @@ class ExtractView(View):
             filename = cd.get('filename')
                         
             if valid_from and valid_to:
-                available_versions = self.extractor.process_dates(valid_from, valid_to)
+                param = DateTimes((valid_from, valid_to))
             elif run:
-                available_versions = self.extractor.process_run(run)
+                param = Run(run)
             elif filename:
-                available_versions = self.extractor.process_run(filename)
-                
+                param = FileName(filename)
+            
+            available_versions = self.extractor.process(param)
             if version:
                 params = self.extractor.params_for_version(
                     available_versions, version)
