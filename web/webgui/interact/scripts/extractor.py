@@ -87,21 +87,22 @@ class Extractor(object):
             )
         
         return self.__get_df(versions)
-
-
-"""
-            
-    with open(file_name, 'w') as conf:
-        for table_name, table in tables.items():
-            conf.write(f'[{table_name}]\n')
-            query = select(table.c.parameters).where(
-                table.c.valid_from <= valid_from,
-                table.c.valid_to >= valid_to,
-                table.c.version == version
-            )
-            result = connection.execute(query).fetchone()
-            if result:
-                result = result[0]
-                conf.write(result + '\n\n')
-"""
+    
+    def write_to_file(self, valid_from, valid_to, version):
+        valid_from = datetime.utcfromtimestamp(valid_from.tolist()/1e9)
+        valid_to = datetime.utcfromtimestamp(valid_to.tolist()/1e9)
+        filename = f"./interact/configuration_files/{valid_from}-{valid_to}-v-{version}"
+        with open(filename, 'w') as conf:
+            for table_name, table in self.tables.items():
+                conf.write(f'[{table_name}]\n')
+                query = select(table.c.parameters).where(
+                    table.c.valid_from <= valid_from,
+                    table.c.valid_to >= valid_to,
+                    table.c.version == version
+                )
+                result = connection.execute(query).fetchone()
+                if result:
+                    result = result[0]
+                    conf.write(result + '\n\n')
+        return filename
     

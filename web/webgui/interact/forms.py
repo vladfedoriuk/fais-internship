@@ -29,7 +29,7 @@ class ExtractForm(forms.Form):
         help_text="The time configuration is valid from.",
         widget=forms.widgets.TimeInput(
             attrs={
-                'type': 'time',
+                'type': 'time', 
                 'class': 'form-control',
                 'aria-describedby': 'time-from-help'
             }

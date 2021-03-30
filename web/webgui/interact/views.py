@@ -4,6 +4,7 @@ import core.models
 from django.views.decorators.http import require_http_methods
 from django.views import View
 from .scripts.extractor import Extractor
+from django.http import FileResponse
 
 # Create your views here.
 
@@ -66,7 +67,9 @@ class ExtractView(View):
             if version:
                 params = self.extractor.params_for_version(
                     available_versions, version)
-                # process params, return file
+                if params:
+                    output_filename = self.extractor.write_to_file(*params)
+                    return FileResponse(open(output_filename, 'rb'), as_attachment=True)
                 
             if not params or not version:
                 versions_table = available_versions
