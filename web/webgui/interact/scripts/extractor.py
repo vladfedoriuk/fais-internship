@@ -6,9 +6,21 @@ import pandas
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Set, Tuple, Optional, Dict
+from typing import Set, Tuple, Optional, Dict, NamedTuple
 from sqlalchemy.sql.selectable import Select, Join
 
+class SearchDetails(NamedTuple):
+    valid_from: datetime
+    valid_to: datetime
+    version: int
+
+
+class VersionDetails(NamedTuple):
+    valid_from: datetime
+    valid_to: datetime
+    version: int
+    remarks: Optional[str]
+    
 
 class Parameter(ABC): 
        
@@ -77,8 +89,7 @@ class Extractor(object):
         return tables_dict
     
     @staticmethod
-    def __get_df(versions: Set[Tuple[datetime, datetime, int, Optional[str]]]) \
-        -> pandas.DataFrame:
+    def __get_df(versions: Set[VersionDetails]) -> pandas.DataFrame:
         available_versions = reduce(lambda s1, s2: s1 & s2, versions.values())
         available_versions = list(available_versions)
     
@@ -98,21 +109,21 @@ class Extractor(object):
             s = param.where(table)
             results = connection.execute(s).fetchall()
             versions[table_name] = frozenset(
-                res for res in results
+                VersionDetails(*res) for res in results
             )
         return self.__get_df(versions)
     
-    def params_for_version(self, df: pandas.DataFrame, version: int)\
-        -> Optional[Tuple[datetime, datetime, int]]:
+    @staticmethod
+    def version_exists(df: pandas.DataFrame, version: int) -> bool:
         version = df.loc[df['VERSION']==version]
-        if not version.empty:
-            idx = version.index
-            valid_from = df.loc[idx, 'VALID_FROM'].values[0]
-            valid_to = df.loc[idx, 'VALID_TO'].values[0]
-            version = df.loc[idx, 'VERSION'].values[0]
-            return valid_from, valid_to, version
+        return not version.empty
     
-    def write_to_file(self, valid_from: datetime, valid_to: datetime, version: int) -> str:
+    @staticmethod
+    def filter_by_version(df: pandas.DataFrame, version: int) -> pandas.DataFrame:
+        return  df.loc[df['VERSION']==version]
+    
+    def write_to_file(self, details: SearchDetails) -> str:
+        valid_from, valid_to, version = details
         valid_from = datetime.utcfromtimestamp(valid_from.tolist()/1e9)
         valid_to = datetime.utcfromtimestamp(valid_to.tolist()/1e9)
         filename = f"./interact/configuration_files/{valid_from}-{valid_to}-v-{version}"

@@ -9,22 +9,15 @@
 
     {% include "interact/includes/forms/extract_form.html" with form=form %}
     
-    {%if versions is not None %}
-        <div class="alert alert-primary" role="alert">
+    {%if not version_exists %}
+        <div class="alert alert-warning" role="alert">
             <p>
                 You have not provided a version or the provided version does not exist.
-                Please, provide one of the following versions:
             </p>
         </div>
-
-        <div class="alert alert-secondary" role="alert">
-            <p>
-                If there are several configurations with the same version number,
-                provide the validity dates of the desired version in the form above.
-                (Otherwise, the first configuration that meets the requirements will be returned)
-            </p>
-        </div>
-        
+    {% endif %}
+    
+    {% if versions is not None%}
         <div>
             <table class="table">
                 <thead>
@@ -40,6 +33,11 @@
                         {% for item in row %}
                             <td> {{ item }} </td>
                         {% endfor %}
+                            <td>
+                                <button type="button" class="btn btn-success btn-sm">
+                                    <span class="oi oi-data-transfer-download"></span>
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
