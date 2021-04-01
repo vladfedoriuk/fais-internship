@@ -9,13 +9,28 @@ class ParseForm(forms.Form):
 # March 16, 2021, 2 p.m.
 class DownloadForm(forms.Form):
     valid_from = forms.DateTimeField(
-        required=True
+        required=True,
+        widget=forms.widgets.TextInput(
+            attrs={
+                'type': 'hidden'
+            }
+        )
     )
     valid_to = forms.DateTimeField(
-        required=True
+        required=True,
+        widget=forms.widgets.TextInput(
+            attrs={
+                'type': 'hidden'
+            }
+        )
     )
     version = forms.IntegerField(
-        required=True
+        required=True,
+        widget=forms.widgets.TextInput(
+            attrs={
+                'type': 'hidden'
+            }
+        )
     )
     
 class ExtractForm(forms.Form):

@@ -29,7 +29,8 @@ def download(request):
         return FileResponse(open(filename, 'rb'), as_attachment=True)
 
 class ExtractView(View):
-    form_class = ExtractForm
+    extract_form_class = ExtractForm
+    download_form_class = DownloadForm
     template_name = 'interact/extract.html'
     
     def get(self, request, *args, **kwargs):
@@ -43,13 +44,14 @@ class ExtractView(View):
         )
     
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        extract_form = self.extract_form_class(request.POST)
+        download_form = self.download_form_class()
         
         versions_table = None 
         version_exists=True
         
-        if form.is_valid():
-            cd = form.cleaned_data
+        if extract_form.is_valid():
+            cd = extract_form.cleaned_data
             valid_from = cd.get('valid_from')
             valid_to = cd.get('valid_to')
             version = cd.get('version')
@@ -78,8 +80,9 @@ class ExtractView(View):
             request,
             self.template_name,
             {  
-                'form': form,
+                'extract_form': extract_form,
+                'download_form': download_form,
                 'versions': versions_table,
-                'version_exists': version_exists
+                'version_exists': version_exists,
             }
         )
