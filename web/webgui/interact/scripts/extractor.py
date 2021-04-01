@@ -10,16 +10,19 @@ from dataclasses import dataclass
 from typing import Set, Tuple, Optional, Dict, NamedTuple
 from sqlalchemy.sql.selectable import Select, Join
 
-class SearchDetails(NamedTuple):
+
+@dataclass(eq=True, frozen=True, unsafe_hash=True)
+class SearchDetails:
     valid_from: datetime
     valid_to: datetime
     version: int
+    
+    def to_tuple(self):
+        return tuple(x for x in self.__dict__.values())
+    
 
-
-class VersionDetails(NamedTuple):
-    valid_from: datetime
-    valid_to: datetime
-    version: int
+@dataclass(eq=True, frozen=True, unsafe_hash=True)
+class VersionDetails(SearchDetails):
     remarks: Optional[str]
     
 
@@ -92,7 +95,7 @@ class Extractor(object):
     @staticmethod
     def __get_df(versions: Set[VersionDetails]) -> pandas.DataFrame:
         available_versions = reduce(lambda s1, s2: s1 & s2, versions.values())
-        available_versions = list(available_versions)
+        available_versions = list(map(lambda x: x.to_tuple(), available_versions))
     
         df = pandas.DataFrame(
             data=available_versions, 
@@ -100,6 +103,7 @@ class Extractor(object):
             columns=['VALID_FROM', 'VALID_TO', 'VERSION', 'REMARKS']
         )
         df.index.name = 'ID'
+        print(df)
         return df  
     
     def process(self, param: Parameter) -> pandas.DataFrame:
@@ -130,7 +134,7 @@ class Extractor(object):
         return df
     
     def write_to_file(self, details: SearchDetails) -> str:
-        valid_from, valid_to, version = details
+        valid_from, valid_to, version = details.to_tuple()
         filename = f"./interact/configuration_files/{valid_from}-{valid_to}-v-{version}"
         with open(filename, 'w') as conf:
             for table_name, table in self.tables.items():
