@@ -6,7 +6,18 @@ import datetime
 class ParseForm(forms.Form):
     pass
 
-
+# March 16, 2021, 2 p.m.
+class DownloadForm(forms.Form):
+    valid_from = forms.DateTimeField(
+        required=True
+    )
+    valid_to = forms.DateTimeField(
+        required=True
+    )
+    version = forms.IntegerField(
+        required=True
+    )
+    
 class ExtractForm(forms.Form):
     
     valid_from_date = forms.DateField(

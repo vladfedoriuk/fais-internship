@@ -1,40 +1,36 @@
 from django.shortcuts import render
-from .forms import ExtractForm
+from .forms import ExtractForm, DownloadForm
 import core.models 
 from django.views.decorators.http import require_http_methods
+from django.http import HttpResponse
 from django.views import View
 from .scripts.extractor import Extractor, DateTimes, Run, FileName, \
     SearchDetails, VersionDetails
 from django.http import FileResponse
 
 # Create your views here.
+extractor = Extractor()
 
 @require_http_methods(['GET', 'POST'])
 def parse(request):
     return render(request, 'interact/parse.html')
 
 
-@require_http_methods(['GET', 'POST'])
-def extract(request):
-    if request.method == 'POST':  
-        form = ExtractForm(request.POST)
-        if form.is_valid():
-            print(form.cleaned_data)
-    else:
-        form = ExtractForm()    
-    return render(
-        request, 
-        'interact/extract.html',
-        {
-            'form': form
-        }
-    )
-
+@require_http_methods(['POST'])
+def download(request):
+    form = DownloadForm(request.POST)
+    if form.is_valid():
+        details = SearchDetails(
+            form.cleaned_data['valid_from'],
+            form.cleaned_data['valid_to'],
+            form.cleaned_data['version']
+        )
+        filename = extractor.write_to_file(details)
+        return FileResponse(open(filename, 'rb'), as_attachment=True)
 
 class ExtractView(View):
     form_class = ExtractForm
     template_name = 'interact/extract.html'
-    extractor = Extractor()
     
     def get(self, request, *args, **kwargs):
         form = self.form_class()
@@ -67,15 +63,17 @@ class ExtractView(View):
             elif filename:
                 param = FileName(filename)
             
-            available_versions = self.extractor.process(param)
+            available_versions = extractor.process(param)
             if version:
-                version_exists = self.extractor.version_exists(available_versions, version)
+                version_exists = extractor.version_exists(available_versions, version)
                 if version_exists:
-                    versions_table = self.extractor.filter_by_version(available_versions, version)
+                    versions_table = extractor.filter_by_version(available_versions, version)
             if not version or not version_exists:
                 version_exists = False
                 versions_table = available_versions
                 
+            versions_table = extractor.convert_datetimes(versions_table)
+    
         return render(
             request,
             self.template_name,

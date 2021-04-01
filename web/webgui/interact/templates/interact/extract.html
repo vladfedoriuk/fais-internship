@@ -9,7 +9,7 @@
 
     {% include "interact/includes/forms/extract_form.html" with form=form %}
     
-    {%if not version_exists %}
+    {%if version_exists is False %}
         <div class="alert alert-warning" role="alert">
             <p>
                 You have not provided a version or the provided version does not exist.
@@ -34,9 +34,15 @@
                             <td> {{ item }} </td>
                         {% endfor %}
                             <td>
-                                <button type="button" class="btn btn-success btn-sm">
-                                    <span class="oi oi-data-transfer-download"></span>
-                                </button>
+                                <form action={% url "interact:download" %} method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="valid_from" value="{{row.0}}">
+                                    <input type="hidden" name="valid_to" value="{{row.1}}">
+                                    <input type="hidden" name="version" value="{{row.2}}">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <span class="oi oi-data-transfer-download"></span>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

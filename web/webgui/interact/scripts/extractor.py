@@ -1,4 +1,5 @@
 from .utils.db import ConfTableFactory, engine, DB, Files, tables_query, EXCLUDE, Table
+from .utils.time import convert_datetime
 from datetime import datetime
 from sqlalchemy.sql import select, join
 from functools import reduce, cached_property
@@ -122,10 +123,14 @@ class Extractor(object):
     def filter_by_version(df: pandas.DataFrame, version: int) -> pandas.DataFrame:
         return  df.loc[df['VERSION']==version]
     
+    @staticmethod
+    def convert_datetimes(df: pandas.DataFrame) -> pandas.DataFrame:
+        df['VALID_FROM'] = df['VALID_FROM'].apply(convert_datetime)
+        df['VALID_TO'] = df['VALID_TO'].apply(convert_datetime)
+        return df
+    
     def write_to_file(self, details: SearchDetails) -> str:
         valid_from, valid_to, version = details
-        valid_from = datetime.utcfromtimestamp(valid_from.tolist()/1e9)
-        valid_to = datetime.utcfromtimestamp(valid_to.tolist()/1e9)
         filename = f"./interact/configuration_files/{valid_from}-{valid_to}-v-{version}"
         with open(filename, 'w') as conf:
             for table_name, table in self.tables.items():
