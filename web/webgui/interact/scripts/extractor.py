@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Set, Tuple, Optional, Dict, NamedTuple
 from sqlalchemy.sql.selectable import Select, Join
 
+connection = engine.connect()
 
 @dataclass(eq=True, frozen=True, unsafe_hash=True)
 class SearchDetails:
@@ -78,7 +79,6 @@ class FileName(Run):
                 where(Files.c.file_name == self.param)
     
     
-connection = engine.connect()
 factory = ConfTableFactory()
 
 class Extractor(object):
@@ -103,6 +103,7 @@ class Extractor(object):
             columns=['VALID_FROM', 'VALID_TO', 'VERSION', 'REMARKS']
         )
         df.index.name = 'ID'
+        df['REMARKS'] = df['REMARKS'].apply(lambda x: None if x == '' else x)
         return df  
     
     def process(self, param: Parameter) -> pandas.DataFrame:

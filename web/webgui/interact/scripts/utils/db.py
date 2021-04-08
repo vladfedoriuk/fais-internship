@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import partial
 from sqlalchemy import create_engine, Table, Column, \
     Integer, String, MetaData, DateTime, Text
     
@@ -32,7 +33,24 @@ engine = create_engine(
 
 metadata = MetaData(engine)
 
+class Cache(object):
+    
+    def __init__(self, func):
+        self.func = func
+        self.cache = {}
+    
+    def __call__(self, obj, table_name):
+        if table_name not in self.cache:
+            self.cache[table_name] = self.func(obj, table_name)
+        return self.cache[table_name]
+    
+    def __get__(self, obj, objtype):
+        return partial(self.__call__, obj)
+    
+
 class ConfTableFactory(object):
+    
+    # @Cache
     def __call__(self, table_name):
         # return Table(table_name, metadata, autoload=True, autoload_with=engine)
         return Table(
@@ -43,7 +61,7 @@ class ConfTableFactory(object):
             Column('valid_to', DateTime(timezone=True), nullable=False),
             Column('version', Integer, default=1, nullable=False),
             Column('remarks', String),
-            autoload_with=engine
+            autoload_with=engine, extend_existing=True
         )
 
 Files = Table(

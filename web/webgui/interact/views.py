@@ -29,6 +29,8 @@ class ParseView(View):
     
     def post(self, request, *args, **kwargs):
         parse_form = self.parse_form_class(request.POST, request.FILES)
+        
+        sent = False
 
         if parse_form.is_valid():
             cd = parse_form.cleaned_data
@@ -73,6 +75,7 @@ class ParseView(View):
                         valid_to=valid_to,
                         remarks=cd.get('remarks')
                     )
+                    sent = True
                 except Exception as e:
                     error = e.args
                     return render(
@@ -99,6 +102,7 @@ class ParseView(View):
             self.template_name,
             {
                 'parse_form': parse_form,
+                'sent': sent
             }
         )
 

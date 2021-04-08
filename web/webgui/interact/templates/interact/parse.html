@@ -10,4 +10,10 @@
 
     {% include "interact/includes/forms/parse_form.html" with form=parse_form %}
 
+    {% if sent is True %}
+        <div class="alert alert-success" role="alert">
+            The configuration has been added to the database.
+        </div>
+    {% endif %}
+
 {% endblock %}
