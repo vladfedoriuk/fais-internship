@@ -1,135 +1,132 @@
 <div class="container">
-  <form action={% url "interact:parse" %} enctype="multipart/form-data" method="POST">
-    {% csrf_token %}
-    <div class="text-danger">
-      {{ form.non_field_errors }}
-      {% if error %}
-        <ul>
-            {% for err in error%}
-                <li> {{ err }} </li>
-            {% endfor %}
-        </ul>
-       {% endif %}
-    </div>
+    <form action={% url "interact:parse" %} enctype="multipart/form-data" method="POST">
+        {% csrf_token %}
+        <div class="text-danger">
+            {{ form.non_field_errors }}
+            {% if error %}
+                <ul>
+                    {% for err in error%}
+                        <li> {{ err }} </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
     
-    <div class="row form-group">
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_from_date.errors }}
+        <div class="row form-group">
+            <div class="col">
+                <div class="text-danger">
+                    {{ form.valid_from_date.errors }}
+                </div>
+                {{ form.valid_from_date.label_tag }}
+                {{ form.valid_from_date }}
+                <small id="date-from-help" class="form-text text-muted"> {{ form.valid_from_date.help_text }} </small>
+            </div>
+
+            <div class="col">
+                <div class="text-danger">
+                    {{ form.valid_from_time.errors }}
+                </div>
+                {{ form.valid_from_time.label_tag }}
+                {{ form.valid_from_time }}
+                <small id="date-time-help" class="form-text text-muted"> {{ form.valid_from_time.help_text }} </small>
+            </div>
         </div>
-        {{ form.valid_from_date.label_tag }}
-        {{ form.valid_from_date }}
-        <small id="date-from-help" class="form-text text-muted"> {{ form.valid_from_date.help_text }} </small>
-      </div>
 
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_from_time.errors }}
+        <div class="row form-group">
+            <div class="col">
+                <div class="text-danger">
+                    {{ form.valid_to_date.errors }}
+                </div>
+                {{ form.valid_to_date.label_tag }}
+                {{ form.valid_to_date }}
+                <small id="date-to-help" class="form-text text-muted"> {{ form.valid_to_date.help_text }} </small>
+            </div>
+
+            <div class="col">
+                <div class="text-danger">
+                    {{ form.valid_to_time.errors }}
+                </div>
+                {{ form.valid_to_time.label_tag }}
+                {{ form.valid_to_time }}
+                <small id="time-to-help" class="form-text text-muted"> {{ form.valid_to_time.help_text }} </small>
+            </div>
         </div>
-        {{ form.valid_from_time.label_tag }}
-        {{ form.valid_from_time }}
-        <small id="date-time-help" class="form-text text-muted"> {{ form.valid_from_time.help_text }} </small>
-      </div>
-    </div>
 
-     <div class="row form-group">
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_to_date.errors }}
+        <div class="row form-group">
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.run_from.errors }}
+                </div>
+                {{ form.run_from.label_tag }}
+                {{ form.run_from }}
+                <small id="run-from-help" class="form-text text-muted"> {{ form.run_from.help_text }} </small>
+            </div>
+
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.run_to.errors }}
+                </div>
+                {{ form.run_to.label_tag }}
+                {{ form.run_to }}
+                <small id="run-to-help" class="form-text text-muted"> {{ form.run_to.help_text }} </small>
+            </div>
+
         </div>
-        {{ form.valid_to_date.label_tag }}
-        {{ form.valid_to_date }}
-        <small id="date-to-help" class="form-text text-muted"> {{ form.valid_to_date.help_text }} </small>
-      </div>
 
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_to_time.errors }}
+        <div class="row form-group">
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.filename_from.errors }}
+                </div>
+                {{ form.filename_from.label_tag }}
+                {{ form.filename_from }}
+                <small id="filename-from-help" class="form-text text-muted"> {{ form.filename_from.help_text }} </small>
+            </div>
+
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.filename_to.errors }}
+                </div>
+                {{ form.filename_to.label_tag }}
+                {{ form.filename_to }}
+                <small id="filename-to-help" class="form-text text-muted"> {{ form.filename_to.help_text }} </small>
+            </div>
+
         </div>
-        {{ form.valid_to_time.label_tag }}
-        {{ form.valid_to_time }}
-        <small id="time-to-help" class="form-text text-muted"> {{ form.valid_to_time.help_text }} </small>
-      </div>
-    </div>
-
-    <div class="row form-group">
-      <div class="col-4">
-        <div class="text-danger">
-          {{ form.run_from.errors }}
-        </div>
-        {{ form.run_from.label_tag }}
-        {{ form.run_from }}
-        <small id="run-from-help" class="form-text text-muted"> {{ form.run_from.help_text }} </small>
-      </div>
-
-      <div class="col-4">
-        <div class="text-danger">
-          {{ form.run_to.errors }}
-        </div>
-        {{ form.run_to.label_tag }}
-        {{ form.run_to }}
-        <small id="run-to-help" class="form-text text-muted"> {{ form.run_to.help_text }} </small>
-      </div>
-
-    </div>
-
-     <div class="row form-group">
-      <div class="col-4">
-        <div class="text-danger">
-          {{ form.filename_from.errors }}
-        </div>
-        {{ form.filename_from.label_tag }}
-        {{ form.filename_from }}
-        <small id="filename-from-help" class="form-text text-muted"> {{ form.filename_from.help_text }} </small>
-      </div>
-
-      <div class="col-4">
-        <div class="text-danger">
-          {{ form.filename_to.errors }}
-        </div>
-        {{ form.filename_to.label_tag }}
-        {{ form.filename_to }}
-        <small id="filename-to-help" class="form-text text-muted"> {{ form.filename_to.help_text }} </small>
-      </div>
-
-    </div>
     
-    <div class="row form-group">
+        <div class="row form-group">
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.version.errors }}
+                </div>
+                {{ form.version.label_tag }}
+                {{ form.version }}
+                <small id="version-help" class="form-text text-muted"> {{ form.version.help_text }} </small>
+            </div>
 
-      <div class="col-4">
-        <div class="text-danger">
-          {{ form.version.errors }}
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.confguration.errors }}
+                </div>
+                {{ form.configuration.label_tag }}
+                {{ form.configuration }}
+                <small id="configuration-help" class="form-text text-muted"> {{ form.configuration.help_text }} </small>
+            </div>
         </div>
-        {{ form.version.label_tag }}
-        {{ form.version }}
-        <small id="version-help" class="form-text text-muted"> {{ form.version.help_text }} </small>
-      </div>
-
-      <div class="col-4">
-        <div class="text-danger">
-          {{ form.confguration.errors }}
-        </div>
-        {{ form.configuration.label_tag }}
-        {{ form.configuration }}
-        <small id="configuration-help" class="form-text text-muted"> {{ form.configuration.help_text }} </small>
-      </div>
-
-    </div>
     
-    <div class="row form-group">
-        <div class="text-danger">
-          {{ form.remarks.errors }}
+        <div class="row form-group">
+            <div class="text-danger">
+                {{ form.remarks.errors }}
+            </div>
+            {{ form.remarks.label_tag }}
+            {{ form.remarks }}
+            <small id="remarks-help" class="form-text text-muted"> {{ form.remarks.help_text }} </small>
         </div>
-        {{ form.remarks.label_tag }}
-        {{ form.remarks }}
-        <small id="remarks-help" class="form-text text-muted"> {{ form.remarks.help_text }} </small>
-    </div>
 
-    <div class="row form-group">
-      <div class="col">
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </div>
-    </div>
-
-  </form>
+        <div class="row form-group">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
 </div>

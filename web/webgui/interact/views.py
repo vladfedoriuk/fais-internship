@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .forms import ExtractForm, DownloadForm, ParseForm
 import core.models 
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.views import View
 from .scripts.extractor import Extractor, DateTimes, Run, FileName, \
     SearchDetails, VersionDetails
@@ -11,7 +11,6 @@ from .scripts.parser import handle_uploaded_file, ValidityDates, Runs, Filenames
 
 from django.http import FileResponse
 
-# Create your views here.
 extractor = Extractor()
 
 class ParseView(View):
@@ -54,8 +53,8 @@ class ParseView(View):
                 if arg:
                     try:
                         valid_from, valid_to = vd.from_params(arg)
-                    except ValueError as ve:
-                        error = ve.args
+                    except Exception as e:
+                        error = e.args
                         return render(
                             request,
                             self.template_name,
@@ -115,6 +114,7 @@ def download(request):
         )
         filename = extractor.write_to_file(details)
         return FileResponse(open(filename, 'rb'), as_attachment=True)
+    raise Http404('validity dates or version are not valid')
     
 
 class ExtractView(View):
