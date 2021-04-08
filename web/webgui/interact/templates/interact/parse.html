@@ -3,5 +3,11 @@
 {% block title %} Add Configuration {% endblock %}
 
 {% block content %}
-    <h1> Add configuration to the database. </h1>
+
+    <div class="header-form">
+        <h1> Add configurations to the database. </h1>
+    </div>
+
+    {% include "interact/includes/forms/parse_form.html" with form=parse_form %}
+
 {% endblock %}

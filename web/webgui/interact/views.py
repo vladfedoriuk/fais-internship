@@ -1,19 +1,107 @@
 from django.shortcuts import render
-from .forms import ExtractForm, DownloadForm
+from .forms import ExtractForm, DownloadForm, ParseForm
 import core.models 
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 from django.views import View
 from .scripts.extractor import Extractor, DateTimes, Run, FileName, \
     SearchDetails, VersionDetails
+from .scripts.parser import handle_uploaded_file, ValidityDates, Runs, Filenames, \
+    write_to_database
+
 from django.http import FileResponse
 
 # Create your views here.
 extractor = Extractor()
 
-@require_http_methods(['GET', 'POST'])
-def parse(request):
-    return render(request, 'interact/parse.html')
+class ParseView(View):
+    parse_form_class = ParseForm
+    template_name = 'interact/parse.html'
+    
+    def get(self, request, *args, **kwargs):
+        parse_form = self.parse_form_class()
+        return render(
+            request,
+            self.template_name,
+            {
+                'parse_form': parse_form
+            }
+        )
+    
+    def post(self, request, *args, **kwargs):
+        parse_form = self.parse_form_class(request.POST, request.FILES)
+
+        if parse_form.is_valid():
+            cd = parse_form.cleaned_data
+            conf_file = handle_uploaded_file(cd['configuration'])
+            
+            valid_from = cd.get('valid_from')
+            valid_to = cd.get('valid_to')
+            if not valid_from and not valid_to:
+                vd = ValidityDates()
+                
+                run_from = cd.get('run_from')
+                run_to = cd.get('run_to')
+                filename_from = cd.get('filename_from')
+                filename_to = cd.get('filename_to')
+                arg = None
+                
+                if run_from and run_to:
+                    arg = Runs(run_from, run_to)
+                elif filename_from and filename_to:
+                    arg = Filenames(filename_from, filename_to)
+                    
+                if arg:
+                    try:
+                        valid_from, valid_to = vd.from_params(arg)
+                    except ValueError as ve:
+                        error = ve.args
+                        return render(
+                            request,
+                            self.template_name,
+                            {
+                                'parse_form': parse_form,
+                                'error': error
+                            }
+                        )
+            
+            if valid_from and valid_to:
+                try:
+                    write_to_database(
+                        conf_file_path=conf_file,
+                        version = cd.get('version'),
+                        valid_from=valid_from,
+                        valid_to=valid_to,
+                        remarks=cd.get('remarks')
+                    )
+                except Exception as e:
+                    error = e.args
+                    return render(
+                        request,
+                        self.template_name,
+                        {
+                            'parse_form': parse_form,
+                            'error': error
+                        }
+                    )
+                    
+            else:
+                return render(
+                        request,
+                        self.template_name,
+                        {
+                            'parse_form': parse_form,
+                            'error': ('Failed to extract some of the validity dates.',)
+                        }
+                    )
+                
+        return render(
+            request,
+            self.template_name,
+            {
+                'parse_form': parse_form,
+            }
+        )
 
 
 @require_http_methods(['POST'])
@@ -27,6 +115,7 @@ def download(request):
         )
         filename = extractor.write_to_file(details)
         return FileResponse(open(filename, 'rb'), as_attachment=True)
+    
 
 class ExtractView(View):
     extract_form_class = ExtractForm
@@ -34,12 +123,12 @@ class ExtractView(View):
     template_name = 'interact/extract.html'
     
     def get(self, request, *args, **kwargs):
-        form = self.form_class()
+        extract_form = self.extract_form_class()
         return render(
             request,
             self.template_name,
             {
-                'form': form
+                'extract_form': extract_form
             }
         )
     

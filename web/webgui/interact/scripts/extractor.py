@@ -103,7 +103,6 @@ class Extractor(object):
             columns=['VALID_FROM', 'VALID_TO', 'VERSION', 'REMARKS']
         )
         df.index.name = 'ID'
-        print(df)
         return df  
     
     def process(self, param: Parameter) -> pandas.DataFrame:
@@ -135,7 +134,7 @@ class Extractor(object):
     
     def write_to_file(self, details: SearchDetails) -> str:
         valid_from, valid_to, version = details.to_tuple()
-        filename = f"./interact/configuration_files/{valid_from}-{valid_to}-v-{version}"
+        filename = f"./interact/files/extracted/{valid_from}-{valid_to}-v-{version}"
         with open(filename, 'w') as conf:
             for table_name, table in self.tables.items():
                 conf.write(f'[{table_name}]\n')

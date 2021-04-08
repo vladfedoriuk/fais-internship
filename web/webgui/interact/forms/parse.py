@@ -2,38 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 import datetime
 
-
 class ParseForm(forms.Form):
-    pass
-
-# March 16, 2021, 2 p.m.
-class DownloadForm(forms.Form):
-    valid_from = forms.DateTimeField(
-        required=True,
-        widget=forms.widgets.TextInput(
-            attrs={
-                'type': 'hidden'
-            }
-        )
-    )
-    valid_to = forms.DateTimeField(
-        required=True,
-        widget=forms.widgets.TextInput(
-            attrs={
-                'type': 'hidden'
-            }
-        )
-    )
-    version = forms.IntegerField(
-        required=True,
-        widget=forms.widgets.TextInput(
-            attrs={
-                'type': 'hidden'
-            }
-        )
-    )
-    
-class ExtractForm(forms.Form):
     
     valid_from_date = forms.DateField(
         required=False,
@@ -89,8 +58,78 @@ class ExtractForm(forms.Form):
         )
     )
     
-    version = forms.IntegerField(
+    run_from = forms.IntegerField(
         required=False,
+        label="run-from id",
+        help_text="The id of a run from which configuration is valid",
+        min_value=0,
+        widget=forms.widgets.NumberInput(
+            attrs={
+                'type': 'number',
+                'class': 'form-control',
+                'aria-describedby': 'run-from-help'
+            }
+        )
+    )
+    
+    run_to = forms.IntegerField(
+        required=False,
+        label="run-to id",
+        help_text="The id of a run up to which configuration is valid",
+        min_value=0,
+        widget=forms.widgets.NumberInput(
+            attrs={
+                'type': 'number',
+                'class': 'form-control',
+                'aria-describedby': 'run-to-help'
+            }
+        )
+    )
+    
+    filename_from = forms.CharField(
+        required=False,
+        label="run-from file name",
+        help_text="The name of a run file from which configuration is valid",
+        max_length=255,
+        widget=forms.widgets.TextInput(
+            attrs={
+                'type': 'text',
+                'class': 'form-control',
+                'aria-describedby': 'filename-from-help'
+            }
+        )
+    )
+    
+    filename_to = forms.CharField(
+        required=False,
+        label="run-to file name",
+        help_text="The name of a run file up to which configuration is valid",
+        max_length=255,
+        widget=forms.widgets.TextInput(
+            attrs={
+                'type': 'text',
+                'class': 'form-control',
+                'aria-describedby': 'filename-to-help'
+            }
+        )
+    )
+    
+    remarks = forms.CharField(
+        required=False,
+        label="Optional remarks about the configuration.",
+        max_length=255,
+        widget=forms.widgets.Textarea(
+            attrs={
+                'type': 'textarea',
+                'class': 'form-control',
+                'aria-describedby': 'remarks-help',
+                'rows': 3
+            }
+        )
+    )
+    
+    version = forms.IntegerField(
+        required=True,
         label="version",
         help_text="The version of the configuration.",
         initial=1,
@@ -104,35 +143,22 @@ class ExtractForm(forms.Form):
         )
     )
     
-    run = forms.IntegerField(
-        required=False,
-        label="run id",
-        help_text="The run id to extract validity dates from",
-        min_value=0,
-        widget=forms.widgets.NumberInput(
+    configuration = forms.FileField(
+        required=True,
+        label='configuration file',
+        help_text='The file containing configurations.',
+        widget=forms.widgets.FileInput(
             attrs={
-                'type': 'number',
+                'type': 'file',
                 'class': 'form-control',
-                'aria-describedby': 'run-help'
+                'aria-describedby': 'configuration-help'
             }
         )
     )
     
-    filename = forms.CharField(
-        required=False,
-        label="run file name",
-        help_text="The name of run file to extract validity dates from",
-        widget=forms.widgets.TextInput(
-            attrs={
-                'type': 'text',
-                'class': 'form-control',
-                'aria-describedby': 'filename-help'
-            }
-        )
-    )
     
     def clean(self):
-        cleaned_data = super(ExtractForm, self).clean()
+        cleaned_data = super(ParseForm, self).clean()
         
         valid_from_date = cleaned_data.get('valid_from_date')
         valid_from_time = cleaned_data.get('valid_from_time')
@@ -151,7 +177,7 @@ class ExtractForm(forms.Form):
             
         if (valid_from_date and not valid_to_date) or (valid_to_date and not valid_from_date):
             raise ValidationError(
-                'If any of the validity dates is specified, then another one must be given too.'
+                'If any of the validity dates are specified, then another one must be given too.'
             )
             
         if valid_from_date and valid_to_date:
@@ -166,13 +192,26 @@ class ExtractForm(forms.Form):
                     valid_to_date, valid_to_time)
             else:
                 self.cleaned_data['valid_to'] = valid_to_date
-            
-        else: 
-            run = cleaned_data.get('run')
-            filename = cleaned_data.get('filename')
-            if not run and not filename:
-                raise ValidationError(
-                    'Either run id or filename must be specified if the validity dates are omitted.'
-                )
+                
+            return self.cleaned_data
+  
+        run_from = cleaned_data.get('run_from')
+        run_to = cleaned_data.get('run_to')
+        filename_from = cleaned_data.get('filename_from')
+        filename_to = cleaned_data.get('filename_to')
         
-        return self.cleaned_data
+        if ( not run_from and run_to ) or ( run_from and not run_to ):
+            raise ValidationError(
+                'If any of the run-id\'s are specified, another one must be provided too.'
+            )
+        if ( not filename_from and filename_to ) or ( filename_from and not filename_to ):
+            raise ValidationError(
+                'If any of the run filenames are specified, another one must be provided too.'
+            )
+        if ( run_from and run_to ) or ( filename_from and filename_to ):
+            return self.cleaned_data
+        
+        raise ValidationError(
+            'Either run id\'s, filenames or validation dates must be specified'
+        )
+    

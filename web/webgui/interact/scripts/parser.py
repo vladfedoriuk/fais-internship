@@ -1,19 +1,25 @@
 import re
-import sys
-import logging
-import argparse
 from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timedelta
-from utils.db import ConfTableFactory, Files, engine, tables_query
-from utils.time import time_patterns_set, r_time_patterns, validate_date
+from .utils.db import ConfTableFactory, Files, engine, tables_query
 from sqlalchemy.sql import select
+from functools import singledispatchmethod
+from datetime import datetime
+from typing import Tuple
 
-
-parser = argparse.ArgumentParser()
 connection = engine.connect()
 
-
+@dataclass
+class Filenames:
+    filename_from: str
+    filename_to: str
+    
+@dataclass
+class Runs:
+    run_from: int
+    run_to: int
+    
 @dataclass
 class Token:
     kind: str
@@ -69,8 +75,8 @@ class Converter(object):
             connection.execute(ins)   
                      
 
-def write_to_database(conf_file, version, valid_from, valid_to, remarks=None):
-    with open(conf_file) as file:
+def write_to_database(conf_file_path, version, valid_from, valid_to, remarks=None):
+    with open(conf_file_path) as file:
         tokenizer = Tokenizer(file.read())
         converter = Converter()
         current_table = None
@@ -82,82 +88,73 @@ def write_to_database(conf_file, version, valid_from, valid_to, remarks=None):
             elif token.kind == 'PARAMS' and current_table:
                 converter[current_table] = token.value
         converter.save(version, valid_from, valid_to, remarks=remarks)
+        
+
+def handle_uploaded_file(f):
+    file_path = f'./interact/files/parsed/{str(f)}'
+    with open(file_path, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+    return file_path
+
             
-            
-if __name__ == '__main__':
-    parser.add_argument("conf", 
-                        help=f'The name of the configuration file')
-    parser.add_argument("version",
-                        help='The version of the configuration')
-    parser.add_argument("-rf", "--runfrom",
-                        help=f'The run from which the configuration is valid', type=int)
-    parser.add_argument('-rt', '--runto', 
-                        help='The run up to which the configuration is valid', type=int)
-    parser.add_argument("-ff", "--filefrom",
-                        help=f'The run file from which the configuration is valid')
-    parser.add_argument('-ft', '--fileto', 
-                        help='The run file up to which the configuration is valid')
-    parser.add_argument('-vf', '--validfrom',
-                        help='The datetime from which the configuration is valid\n' + \
-                            f'Accepted patterns: {r_time_patterns}')
-    parser.add_argument('-vt', '--validto', 
-                        help='The datetime up to which the configuration is valid\n' + \
-                            f'Accepted patterns: {r_time_patterns}')
-    parser.add_argument('--remarks', '-r',
-                        help="The optional remarks about the configuration version")
+class ValidityDates(object):
     
-    args = parser.parse_args()
-    
-    valid_from = None
-    valid_to = None
-    conf_file = args.conf
-    
-    try:
-        version = int(args.version)
-    except ValueError:
-        logging.error('Th version should be a positive integer')
-    
-    if args.runfrom is not None:
+    @singledispatchmethod
+    def from_params(self, arg) -> Tuple[datetime, datetime]:
+        raise NotImplementedError(f"Cannot extract valididity dates from {type(arg)}")
+         
+    @from_params.register
+    def _(self, arg: Runs) -> Tuple[datetime, datetime]:
         valid_from = connection.execute(
             select(Files.c.start_time).where(
-                Files.c.run_id==args.runfrom
+                Files.c.run_id==arg.run_from
             )
-        ).fetchone()[0]
-    
-    if args.runto is not None:
+        ).fetchone()
+        
+        if not valid_from:
+            raise ValueError('incorrect run-from id (there is no such run in a database).')
+        
+        valid_from = valid_from[0]
+        
         valid_to = connection.execute(
             select(Files.c.start_time).where(
-                Files.c.run_id==args.runto
+                Files.c.run_id==arg.run_to
             )
-        ).fetchone()[0]
+        ).fetchone()
+        
+        if not valid_to:
+            raise ValueError('incorrect run-to id (there is no such run in a database).')
+        
+        valid_to = valid_to[0]
+        
+        return valid_from, valid_to
+        
     
-    if args.filefrom is not None:
+    @from_params.register
+    def _(self, arg: Filenames) -> Tuple[datetime, datetime]:
         valid_from = connection.execute(
             select(Files.c.start_time).where(
-                Files.c.file_name==args.filefrom
+                Files.c.file_name==arg.filename_from
             )
-        ).fetchone()[0] 
-    
-    if args.fileto is not None:
+        ).fetchone()
+        
+        if not valid_from:
+            raise ValueError('incorrect run-from filename (there is no such run in a database).')
+        
+        valid_from = valid_from[0]
+        
         valid_to = connection.execute(
             select(Files.c.start_time).where(
-                Files.c.file_name==args.fileto
+                Files.c.file_name==arg.filename_to
             )
-        ).fetchone()[0]  
+        ).fetchone()
         
-    if args.validfrom and not valid_from:
-        valid_from = validate_date(args.validfrom, 'validfrom')
-    
-    if args.validto and not valid_to:
-        valid_to = validate_date(args.valid_to, 'validto')
+        if not valid_to:
+            raise ValueError('incorrect run-to filename (there is no such run in a database).')
         
-    write_to_database(
-        conf_file=conf_file,
-        version=version,
-        valid_from=valid_from,
-        valid_to=valid_to,
-        remarks=args.remarks
-    )
+        valid_to = valid_to[0]
         
+        return valid_from, valid_to
                 
     

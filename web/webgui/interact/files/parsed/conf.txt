@@ -1,3 +1,7 @@
+[SFibersStackHitFinderPar]
+fA0: Float_t -0.000540944
+fLambda: Float_t 118.809
+
 [SFibersStackDDUnpackerPar]
 fThreshold: Float_t \
 -4 -4 -4 -4 -4 -4 -4 -4 \
@@ -12,35 +16,6 @@ fVetoThreshold: Float_t \
 fBLMode: Int_t \
 0 0 0 0 0 0 0 0 \
 0 0 0 0 0 0 0 0
-
-[SFibersStackDDLookupTable]
-#   FTAB id channel         mod     layer   fiber   side l/r
-0x1000      0               0       0       0       l
-0x1000      1               0       0       0       r
-0x1000      2               0       0       1       l
-0x1000      3               0       0       1       r
-0x1000      4               0       0       2       l
-0x1000      5               0       0       2       r
-0x1000      6               0       0       3       l
-0x1000      7               0       0       3       r
-
-[SFibersStackHitFinderFiberPar]
-
-
-[SFibersStackHitFinderPar]
-fA0: Float_t -0.000540944
-fLambda: Float_t 118.809
-
-[SFibersStackCalibratorPar]
-# m  l  f  s        adc_g   adc_o   time_o
-  0  0  0  l        1.0     0.0     0
-  0  0  0  r        1.0     0.0     0
-  0  0  1  l        1.0     0.0     0
-  0  0  1  r        1.0     0.0     0
-  0  0  2  l        1.0     0.0     0
-  0  0  2  r        1.0     0.0     0
-  0  0  3  l        1.0     0.0     0
-  0  0  3  r        1.0     0.0     0
 
 [SFibersStackGeomPar]
 nModules: Int_t 2
@@ -71,6 +46,29 @@ fFibersPitch: Float_t \
 1 1 1 1 1 1 1 1 1 1 \
 1 1 1 1 1 1 1 1 1 1
 
+[SFibersStackCalibratorPar]
+# m  l  f  s        adc_g   adc_o   time_o
+  0  0  0  l        1.0     0.0     0
+  0  0  0  r        1.0     0.0     0
+  0  0  1  l        1.0     0.0     0
+  0  0  1  r        1.0     0.0     0
+  0  0  2  l        1.0     0.0     0
+  0  0  2  r        1.0     0.0     0
+  0  0  3  l        1.0     0.0     0
+  0  0  3  r        1.0     0.0     0
 [SFibersStackDigitizerPar]
+
+[SFibersStackHitFinderFiberPar]
+
+[SFibersStackDDLookupTable]
+#   FTAB id channel         mod     layer   fiber   side l/r
+0x1000      0               0       0       0       l
+0x1000      1               0       0       0       r
+0x1000      2               0       0       1       l
+0x1000      3               0       0       1       r
+0x1000      4               0       0       2       l
+0x1000      5               0       0       2       r
+0x1000      6               0       0       3       l
+0x1000      7               0       0       3       r
 
 
