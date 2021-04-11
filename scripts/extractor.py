@@ -18,6 +18,8 @@ def process_run(tables, args, run=True):
     if run:
         try:
             run_id = int(args.run)
+            if run_id < 1:
+                raise ValueError()
         except ValueError:
             logging.error('The run id shoud be a positive integer')
             sys.exit()

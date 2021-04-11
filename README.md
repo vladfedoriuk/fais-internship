@@ -1,4 +1,6 @@
 The repository for the parameters parsing/extracting scripts. 
+## Scripts
+
 - *parser.py* is meant to parse and convert a configuration file into the database tables records
 - *extractor.py* is meant to extract the configurations into a single text file
 
@@ -20,3 +22,5 @@ The repository for the parameters parsing/extracting scripts.
 - To know more about the functionalities of the scripts:
     `python3 scripts/parser.py -h`
     `python3 scripts/extractor.py -h`
+
+

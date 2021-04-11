@@ -85,6 +85,7 @@ def write_to_database(conf_file, version, valid_from, valid_to, remarks=None):
             
             
 if __name__ == '__main__':
+    
     parser.add_argument("conf", 
                         help=f'The name of the configuration file')
     parser.add_argument("version",
@@ -114,6 +115,8 @@ if __name__ == '__main__':
     
     try:
         version = int(args.version)
+        if version < 1:
+            raise ValueError()
     except ValueError:
         logging.error('Th version should be a positive integer')
     
