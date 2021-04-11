@@ -98,22 +98,47 @@ The repository for the parameters parsing/extracting scripts and webgui.
 
 - The administration service allows a user to perform direct CRUD operations on the database. It provides a wide range of functionalities, such as searching the database concerning provided parameters, as well as editing, deleting, or creating the records in the particular tables. What is more, the administrator is granted to create new users. 
 ### Retrieve the configurations
-- "Retrieve the configurations" page is a form that makes it possible to extract the configurations from all the tables in the database for given parameters. The parameters here are similar to those used in the scripts. 
+- "Retrieve the configurations" page is a form that makes it possible to extract the configurations from all the tables in the database for given parameters. The parameters here are similar to those used in the `extractor.py` script. 
 - Here are the meanings of the parameters used in the form:
 - Parameter     |                 Meaning
   ------------- | ------------------------------------------
-  date from     | The date configuration is valid from. 
-  time from     | The time configuration is valid from. **Note: If the time from is provided, the date from must be provided as well.**
-  date to       | The date configuration is valid to. 
-  time to       | The time configuration is valid to. **Note: If the time to is provided, the date to must be provided as well.**
+  date from     | The date the configuration is valid from. 
+  time from     | The time the configuration is valid from. **Note: If the "time from" is provided, the "date from" must be provided as well.**
+  date to       | The date the configuration is valid to. 
+  time to       | The time the configuration is valid to. **Note: If the "time to" is provided, the "date to" must be provided as well.**
   run id        | The run id to extract valididy dates from. 
-  run file name | The name of run file to extract valididy dates from. **Note: Either run id or run file name must be provided if validity dates are omitted, otherwise form will be invalid.**
+  run file name | The name of a run file to extract valididy dates from. **Note: Either run id or run file name must be provided if validity dates are omitted, otherwise form will be invalid.**
   version       | The version of the configuration. **Note: if not provided, all the configurations that satisfy the parameters will be returned.**
+  - **Note: If any of the validity dates are specified, then another one must be given too.**
   - If the form is filled correctly, the ouput will look like the one in the following screenshot:
         ![output](https://user-images.githubusercontent.com/51965488/114308052-2d200f80-9aeb-11eb-9fa4-945a07d3a32f.png)
-  - The extracted configurations are written down in form of a table with columns (*VALID_FROM, VALID_TO, VERSION, REMARKS*), where *VALID_FROM* is a date and a time a configuration is valid from, *VALID_TO* is a date and a time a configuration is valid to, *VERSION* is a version of a configuration and REMARS are the comments optionally provided by the one who added a configuration version to the database.
+  - The extracted configurations are written down in form of a table with columns (*VALID_FROM, VALID_TO, VERSION, REMARKS*), where *VALID_FROM* is a date and a time a configuration is valid from, *VALID_TO* is a date and a time a configuration is valid to, *VERSION* is a version of a configuration and *REMARS* are the comments optionally provided by the one who added a configuration version to the database.
   - The rows with the details of the configuration versions also comprise a button that allows the user to download the desired version of the configuration.
   - If the version a user is looking for does not exist, or there are no configurations matched to the parameters a user has provided, a corresponding alert will be displayed. 
 ![alert](https://user-images.githubusercontent.com/51965488/114308542-06fb6f00-9aed-11eb-940c-4345b07f55d4.png)
+
+### Add a Configuration 
+- "Add a Configuration" page is a form that makes it possible to add the configurations to the database. The parameters here are similar to those used in the `parser.py` script. 
+- Here are the meanings of the parameters used in the form:
+- Parameter     |                 Meaning
+  ------------- | ------------------------------------------
+  date from     | The date the configuration is valid from. 
+  time from     | The time the configuration is valid from. **Note: If the "time from" is provided, the "date from" must be provided as well.**
+  date to       | The date the configuration is valid to. 
+  time to       | The time the configuration is valid to. **Note: If the "time to" is provided, the "date to" must be provided as well.**
+  run-from id   | The id of a run from which the configuration is valid. 
+  run-to id     | The id of a run up to which the configuration is valid. 
+  run-from file name | The name of a run file from which the configuration is valid. 
+  run-to file name   | The name of a run file up to which the configuration is valid. 
+  version            | The version of the configuration. 
+  configuration file | A file containing the configuration.  
+  
+  - **Note: If any of the validity dates are specified, then another one must be given too.**
+  - **Note: Either run id's or run file names must be provided if validity dates are omitted, otherwise form will be invalid.**
+  - **Note: If any of the run-id\'s are specified, another one must be provided too.**
+  - **Note: If any of the run filenames are specified, another one must be provided too.**
+  - If the form is filled correctly and the configuration have sucessfuly been added to the database, a sucess alert will get displayed:
+       ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
+  - Otherwise the corresponding error messages will pop up above the form.
 
               
