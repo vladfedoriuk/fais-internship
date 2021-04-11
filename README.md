@@ -132,6 +132,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   run-to file name   | The name of a run file up to which the configuration is valid. 
   version            | The version of the configuration. 
   configuration file | A file containing the configuration.  
+  remarks | The optional remarks about the configuration.
   
   - **Note: If any of the validity dates are specified, then another one must be given too.**
   - **Note: Either run id's or run file names must be provided if validity dates are omitted, otherwise form will be invalid.**
