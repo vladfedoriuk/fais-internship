@@ -1,4 +1,5 @@
-The repository for the parameters parsing/extracting scripts. 
+The repository for the parameters parsing/extracting scripts and webgui. 
+## Scripts
 - *parser.py* is meant to parse and convert a configuration file into the database tables records
 - *extractor.py* is meant to extract the configurations into a single text file
 
@@ -86,3 +87,20 @@ The repository for the parameters parsing/extracting scripts.
     -r RUN, --run RUN     The run id to extract datetimes from
     -f FILE, --file FILE  The run file name to extract datetimes from
     ```
+## WEB GUI
+- Web interface basically consists of three services: an administration page available via accessing `/admin` url, a page for retrieveing the arguments from the database: `/interact/retrieve` and a page for adding the configurations to the database: `/interact/add`.
+- Those are corresponding screenshots of the pages mentioned above:
+    ![admin](https://user-images.githubusercontent.com/51965488/114301545-02738e00-9ace-11eb-82d5-2840d758df48.png)
+    
+    ![retrieve](https://user-images.githubusercontent.com/51965488/114301602-42d30c00-9ace-11eb-820a-bcd0974d659b.png)
+    
+    ![add](https://user-images.githubusercontent.com/51965488/114301655-83328a00-9ace-11eb-9075-c618d4783622.png)
+
+- The administration service allows a user to perform direct CRUD operations on the database. It provides a wide range of functionalities, such as searching the database concerning provided parameters, as well as editing, deleting, or creating the records in the particular tables. What is more, the administrator is granted to create new users. 
+- "Retrieve the configurations" page is a form that makes it possible to extract the configurations from all the tables in the database for given parameters. The parameters here are similar to those used in the scripts. 
+- Here are the meanings of the parameters used in the form:
+- Parameter     |                 Meaning
+  ------------- | ------------------------------------------
+  date from     | The date configuration is valid from. 
+  time from     | The time configuration is valid from. **Note: If the time from is provided, the date from must be provided as well.**
+              
