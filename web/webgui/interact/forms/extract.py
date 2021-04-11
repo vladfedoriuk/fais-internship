@@ -20,7 +20,7 @@ class ExtractForm(forms.Form):
     valid_from_time = forms.TimeField(
         required=False,
         label="time from",
-        initial="00:00:00",
+        # initial="00:00:00",
         help_text="The time configuration is valid from.",
         widget=forms.widgets.TimeInput(
             attrs={
@@ -47,7 +47,7 @@ class ExtractForm(forms.Form):
     valid_to_time = forms.TimeField(
         required=False,
         label="time to",
-        initial="00:00:00",
+        # initial="00:00:00",
         help_text="The time configuration is valid to.",
         widget=forms.widgets.TimeInput(
             attrs={

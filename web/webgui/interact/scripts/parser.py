@@ -2,11 +2,12 @@ import re
 from dataclasses import dataclass
 from collections import defaultdict
 from datetime import datetime, timedelta
-from .utils.db import ConfTableFactory, Files, engine, tables_query
+from .utils.db import ConfTableFactory, Files, engine, tables_query, EXCLUDE
 from sqlalchemy.sql import select
 from functools import singledispatchmethod
 from datetime import datetime
 from typing import Tuple
+from itertools import chain
 
 connection = engine.connect()
 
@@ -77,6 +78,11 @@ class Converter(object):
                      
 
 def write_to_database(conf_file_path, version, valid_from, valid_to, remarks=None):
+    table_names = connection.execute(tables_query)
+    table_names = set(x for x in chain.from_iterable(table_names) if \
+        not any(re.match(y, x) for y in EXCLUDE)
+    )
+    seen_tables = set()
     with open(conf_file_path) as file:
         tokenizer = Tokenizer(file.read())
         converter = Converter()
@@ -86,8 +92,13 @@ def write_to_database(conf_file_path, version, valid_from, valid_to, remarks=Non
                 current_table = token.value[
                     token.value.index('[') + 1 : token.value.index(']')
                 ]
+                if current_table not in table_names:
+                    raise ValueError(f'there is no such table in the database: {current_table}')
+                seen_tables.add(current_table)
             elif token.kind == 'PARAMS' and current_table:
                 converter[current_table] = token.value
+        if seen_tables != table_names:
+            raise ValueError(f'The configurations for tables {", ".join(table_names - seen_tables)} where not found')
         converter.save(version, valid_from, valid_to, remarks=remarks)
         
 

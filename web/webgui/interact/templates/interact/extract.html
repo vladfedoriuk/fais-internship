@@ -9,15 +9,20 @@
 
     {% include "interact/includes/forms/extract_form.html" with form=extract_form %}
     
-    {%if version_exists is False %}
+    {% if versions.empty %}
+        <div class="alert alert-warning" role="alert">
+            <p>
+                There are no configurations matched to the provided parameters.
+            </p>
+        </div>
+    {% elif version_exists is False %}
         <div class="alert alert-warning" role="alert">
             <p>
                 You have not provided a version or the provided version does not exist.
             </p>
         </div>
-    {% endif %}
     
-    {% if versions is not None%}
+    {% elif versions is not None%}
         <div>
             <table class="table">
                 <thead>
