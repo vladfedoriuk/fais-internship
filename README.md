@@ -97,6 +97,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
     ![add](https://user-images.githubusercontent.com/51965488/114301655-83328a00-9ace-11eb-9075-c618d4783622.png)
 
 - The administration service allows a user to perform direct CRUD operations on the database. It provides a wide range of functionalities, such as searching the database concerning provided parameters, as well as editing, deleting, or creating the records in the particular tables. What is more, the administrator is granted to create new users. 
+### Retrieve the configurations
 - "Retrieve the configurations" page is a form that makes it possible to extract the configurations from all the tables in the database for given parameters. The parameters here are similar to those used in the scripts. 
 - Here are the meanings of the parameters used in the form:
 - Parameter     |                 Meaning
@@ -104,5 +105,8 @@ The repository for the parameters parsing/extracting scripts and webgui.
   date from     | The date configuration is valid from. 
   time from     | The time configuration is valid from. **Note: If the time from is provided, the date from must be provided as well.**
   date to       | The date configuration is valid to. 
-  time from     | The time configuration is valid to. **Note: If the time to is provided, the date to must be provided as well.**
+  time to       | The time configuration is valid to. **Note: If the time to is provided, the date to must be provided as well.**
+  run id        | The run id to extract valididy dates from. 
+  run file name | The name of run file to extract valididy dates from. **Note: Either run id or run file name must be provided if validity dates are omitted, otherwise form will be invalid.**
+  version       | The version of the configuration. **Note: if not provided, all the configurations that satisfy the parameters will be returned.**
               
