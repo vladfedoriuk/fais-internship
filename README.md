@@ -109,4 +109,9 @@ The repository for the parameters parsing/extracting scripts and webgui.
   run id        | The run id to extract valididy dates from. 
   run file name | The name of run file to extract valididy dates from. **Note: Either run id or run file name must be provided if validity dates are omitted, otherwise form will be invalid.**
   version       | The version of the configuration. **Note: if not provided, all the configurations that satisfy the parameters will be returned.**
+  - If the form was filled correctly, the ouput will look like the one in the following screenshot:
+        ![output](https://user-images.githubusercontent.com/51965488/114308052-2d200f80-9aeb-11eb-9fa4-945a07d3a32f.png)
+  - The extracted configurations are written down in form of a table with columns (VALID_FROM, VALID_TO, VERSION, REMARKS), where VALID_FROM is a date and a time the configuration is valid from, VALID_TO is a date and a time the configuration is valid to, VERSION is a version of configurations and REMARS are the comments optionally provided by the one who added this configuration version to the database.
+  - If the version a user is looking for does not exist, or there are no configuration matched to the parameters a user provided, the corresponding alert will be displayed. 
+
               
