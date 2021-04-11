@@ -103,4 +103,6 @@ The repository for the parameters parsing/extracting scripts and webgui.
   ------------- | ------------------------------------------
   date from     | The date configuration is valid from. 
   time from     | The time configuration is valid from. **Note: If the time from is provided, the date from must be provided as well.**
+  date to       | The date configuration is valid to. 
+  time from     | The time configuration is valid to. **Note: If the time to is provided, the date to must be provided as well.**
               
