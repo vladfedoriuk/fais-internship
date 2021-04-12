@@ -112,7 +112,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - **Note: If any of the validity dates are specified, then another one must be given too.**
   - If the form is filled correctly, the ouput will look like the one in the following screenshot:
         ![output](https://user-images.githubusercontent.com/51965488/114308052-2d200f80-9aeb-11eb-9fa4-945a07d3a32f.png)
-  - The extracted configurations are written down in form of a table with columns (*VALID_FROM, VALID_TO, VERSION, REMARKS*), where *VALID_FROM* is a date and a time a configuration is valid from, *VALID_TO* is a date and a time a configuration is valid to, *VERSION* is a version of a configuration and *REMARS* are the comments optionally provided by the one who added a configuration version to the database.
+  - The extracted configurations are written down in form of a table with columns (*VALID_FROM, VALID_TO, VERSION, REMARKS*), where *VALID_FROM* is a date and a time a configuration is valid from, *VALID_TO* is a date and a time a configuration is valid to, *VERSION* is a version of a configuration and *REMARKS* are the comments optionally provided by the one who added a configuration version to the database.
   - The rows with the details of the configuration versions also comprise a button that allows the user to download the desired version of the configuration.
   - If the version a user is looking for does not exist, or there are no configurations matched to the parameters a user has provided, a corresponding alert will be displayed. 
 ![alert](https://user-images.githubusercontent.com/51965488/114308542-06fb6f00-9aed-11eb-940c-4345b07f55d4.png)
