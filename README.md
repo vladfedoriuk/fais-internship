@@ -88,7 +88,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
     -f FILE, --file FILE  The run file name to extract datetimes from
     ```
 ## WEB GUI
-- Web interface basically consists of three services: an administration page available via accessing `/admin` url, a page for retrieveing the arguments from the database: `/interact/retrieve` and a page for adding the configurations to the database: `/interact/add`.
+- Web interface basically consists of three services: an administration page available via accessing `/admin` url, a page for retrieving the arguments from the database: `/interact/retrieve` and a page for adding the configurations to the database: `/interact/add`.
 - Those are corresponding screenshots of the pages mentioned above:
     ![admin](https://user-images.githubusercontent.com/51965488/114301545-02738e00-9ace-11eb-82d5-2840d758df48.png)
     
