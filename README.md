@@ -163,5 +163,6 @@ The repository for the parameters parsing/extracting scripts and webgui.
    - create a superuser in order to use the admin pannel: ` python manage.py createsuperuser` provide the admin username and the password (e.g admin / pass4admin)
    - to run the server in development just perform the command: `python manage.py runserver`
    - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
- 
-              
+### Remarks:
+- **It is not possible to have to runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
+- **It is not possible to have to configurations with the same `valid_from` and `version`.
