@@ -142,7 +142,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
-- First of all you need to create the database as described in the `praktyki.sql` file.
+- First of all, you need to create the database as described in the `praktyki.sql` file.
 - Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` script
 - To set up a webgui service you need to follow the instrictions:
     - Set the database configurations. By default configuration look like this:
