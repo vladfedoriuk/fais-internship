@@ -165,4 +165,4 @@ The repository for the parameters parsing/extracting scripts and webgui.
    - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
 ### Remarks:
 - **It is not possible to have to runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
-- **It is not possible to have to configurations with the same `valid_from` and `version`.
+- **It is not possible to have to configurations with the same `valid_from` and `version`**.
