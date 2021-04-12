@@ -143,9 +143,9 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
 - First of all, you need to create the database as described in the `praktyki.sql` file.
-- Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` script
+- Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
 - To set up a webgui service you need to follow the instrictions:
-    - Set the database configurations. By default configuration look like this:
+    - Set up the database configurations. By default, the configurations look like this:
          ```
             DATABASES = {
                 'default': {
@@ -158,7 +158,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
                 }
             }
           ```
-    They can be found in the `settings.py` file in the webgui derictory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to the ones corresponding to the one's database configurations. The username and password must be provided beforehand as the environmental variables: `export username=<your mysql username> && export password=<your mysql password>`
+    They can be found in the `settings.py` file in the webgui derictory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to those relevant to the one's database configurations. The username and password must be provided beforehand as the environmental variables: `export username=<your mysql username> && export password=<your mysql password>`
    - perform `python manage.py migrate`
    - create a superuser in order to use the admin pannel: ` python manage.py createsuperuser` provide the admin username and the password (e.g admin / pass4admin)
    - to run the server in development just perform the command: `python manage.py runserver`
