@@ -215,6 +215,11 @@ if __name__ == '__main__':
     versions_table = extractor.convert_datetimes(versions_table)
     if not version_exists:
         logging.warning('There was no version provided or the provided version does not exist')
+    
+    
+    if versions_table.empty:
+        logging.error('No configurations satisfyig the parameters have been found')
+        sys.exit()
         
     print(versions_table)
     idx = input('provide an ID of desired configuration: ')
