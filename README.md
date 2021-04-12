@@ -141,5 +141,27 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - If the form is filled correctly and the configuration have sucessfuly been added to the database, a sucess alert will get displayed:
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
-
+### Set up
+- First of all you need to create the database as described in the `praktyki.sql` file.
+- Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` script
+- To set up a webgui service you need to follow the instrictions:
+    - Set the database configurations. By default configuration look like this:
+         ```
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.mysql',
+                    'NAME': 'praktyki',
+                    'USER': os.environ.get('username'),
+                    'PASSWORD': os.environ.get('password'),
+                    'HOST': '127.0.0.1',
+                    'PORT': 3306
+                }
+            }
+          ```
+    They can be found in the `settings.py` file in the webgui derictory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to the ones corresponding to the one's database configurations. The username and password must be provided beforehand as the envoronmental variables: `export username=<your mysql username> && export password=<your mysql password>`
+   - perform `python manage.py migrate`
+   - create a superuser in order to use the admin pannel: ` python manage.py createsuperuser` provide the admin username and the password (e.g admin / pass4admin)
+   - to run the server in development just perform the command: `python manage.py runserver`
+   - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
+ 
               
