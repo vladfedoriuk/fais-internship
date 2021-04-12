@@ -158,7 +158,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
                 }
             }
           ```
-    They can be found in the `settings.py` file in the webgui derictory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to the ones corresponding to the one's database configurations. The username and password must be provided beforehand as the envoronmental variables: `export username=<your mysql username> && export password=<your mysql password>`
+    They can be found in the `settings.py` file in the webgui derictory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to the ones corresponding to the one's database configurations. The username and password must be provided beforehand as the environmental variables: `export username=<your mysql username> && export password=<your mysql password>`
    - perform `python manage.py migrate`
    - create a superuser in order to use the admin pannel: ` python manage.py createsuperuser` provide the admin username and the password (e.g admin / pass4admin)
    - to run the server in development just perform the command: `python manage.py runserver`
