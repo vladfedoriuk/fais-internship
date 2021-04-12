@@ -21,8 +21,9 @@
                 You have not provided a version or the provided version does not exist.
             </p>
         </div>
+    {% endif %}
     
-    {% elif versions is not None%}
+    {% if versions is not None and not versions.empty %}
         <div>
             <table class="table">
                 <thead>

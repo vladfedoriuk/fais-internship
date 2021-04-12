@@ -168,6 +168,7 @@ class ExtractView(View):
                 versions_table = available_versions
                 
             versions_table = extractor.convert_datetimes(versions_table)
+            print(versions_table)
     
         return render(
             request,
