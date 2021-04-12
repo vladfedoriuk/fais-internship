@@ -208,12 +208,17 @@ if __name__ == '__main__':
     if args.validto:
         valid_to = validate_date(args.valid_to, 'validto')
     
+    arg = None
     if args.runfrom and args.runto:
         arg = Runs(args.runfrom, args.runto)
     elif args.filefrom and args.fileto:
         arg = Filenames(args.filefrom, args.fileto)
     
     if not valid_from and not valid_to:
+        if not arg:
+            logging.error('Either run id\'s or filenames must be provided if the validity dates are omitted')
+            sys.exit()
+            
         vd = ValidityDates()
         try:
             valid_from, valid_to = vd.from_params(arg)
