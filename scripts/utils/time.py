@@ -25,8 +25,6 @@ r_time_patterns = [re.sub(r'%Y', '[yyyy]',
                         )
                     )
                 for x in time_patterns_set]
-# datetime.strptime("2012-11-01T04:16:13+0400", "%Y-%m-%dT%H:%M:%S%z")
-# 2012-11-01 04:16:13+04:00
 
 
 def validate_date(date, param_name):
@@ -40,3 +38,12 @@ def validate_date(date, param_name):
         logging.error(f'No time pattern matched for {param_name}.' + \
                       'Use -h flag to see the whole pattern')
         sys.exit()
+        
+
+def convert_datetime(date_time: datetime) -> str:
+    for pattern in time_patterns_set:
+        try:
+            str_datetime = date_time.strftime(pattern)
+            return str_datetime
+        except:
+            pass 

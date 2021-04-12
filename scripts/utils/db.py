@@ -53,7 +53,7 @@ class ConfTableFactory(object):
             Column('valid_to', DateTime(timezone=True), nullable=False),
             Column('version', Integer, default=1, nullable=False),
             Column('remarks', String),
-            autoload_with=engine
+            autoload_with=engine, extend_existing=True
         )
 
 Files = Table(

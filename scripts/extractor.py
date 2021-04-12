@@ -1,118 +1,159 @@
-from utils.db import ConfTableFactory, engine, DB, Files, tables_query, EXCLUDE
-from utils.time import time_patterns_set, r_time_patterns, validate_date
-import argparse
+from utils.db import ConfTableFactory, engine, DB, Files, tables_query, EXCLUDE, Table
+from utils.time import convert_datetime, r_time_patterns, validate_date
 from datetime import datetime
 from sqlalchemy.sql import select, join
-from functools import reduce
-import logging
+from functools import reduce, cached_property
 import pandas
-import sys
 import re
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Set, Tuple, Optional, Dict, NamedTuple
+from sqlalchemy.sql.selectable import Select, Join
+import argparse
+import logging
+import sys
 
 parser = argparse.ArgumentParser()
 connection = engine.connect()
 factory = ConfTableFactory()
 
-def process_run(tables, args, run=True):
+
+@dataclass(eq=True, frozen=True, unsafe_hash=True)
+class SearchDetails:
+    valid_from: datetime
+    valid_to: datetime
+    version: int
     
-    if run:
-        try:
-            run_id = int(args.run)
-            if run_id < 1:
-                raise ValueError()
-        except ValueError:
-            logging.error('The run id shoud be a positive integer')
-            sys.exit()
-    else:
-        file = args.file
+    def to_tuple(self):
+        return tuple(x for x in self.__dict__.values())
     
-    versions = {}
+
+@dataclass(eq=True, frozen=True, unsafe_hash=True)
+class VersionDetails(SearchDetails):
+    remarks: Optional[str]
     
-    for table_name, table in tables.items():
-        j = join(
+
+class Parameter(ABC): 
+       
+    def _select(self, table: Table)-> Select:
+        return select(
+            table.c.valid_from, 
+            table.c.valid_to, 
+            table.c.version, 
+            table.c.remarks
+        )
+    
+    @abstractmethod
+    def where(self, table: Table) -> Select:
+        ...
+ 
+
+@dataclass 
+class DateTimes(Parameter):   
+    param: Tuple[datetime, datetime]
+    
+    def where(self, table: Table) -> Select:
+        return super(DateTimes, self)._select(table).\
+            where(table.c.valid_from <= self.param[0], \
+                table.c.valid_to >= self.param[1]
+            )  
+        
+@dataclass    
+class Run(Parameter):
+    param: int
+    
+    def _join(self, table: Table) -> Join:
+        return join(
             Files, table, 
             (Files.c.start_time >= table.c.valid_from) & \
                 (Files.c.stop_time <= table.c.valid_to)
         )
-        if run:
-            s = select(
-                    table.c.valid_from, 
-                    table.c.valid_to, 
-                    table.c.version, 
-                    table.c.remarks
-                ).select_from(j).where(Files.c.run_id == run_id)
-        else:
-            s = select(
-                    table.c.valid_from, 
-                    table.c.valid_to, 
-                    table.c.version, 
-                    table.c.remarks
-                ).select_from(j).where(Files.c.file_name == file)
-            
-        results = connection.execute(s).fetchall()
-        versions[table_name] = set(res for res in results)
-    
-    available_versions = reduce(lambda s1, s2: s1 & s2, versions.values())
-    available_versions = list(available_versions)
-    
-    df = pandas.DataFrame(
-        data=available_versions, 
-        index=range(len(available_versions)),
-        columns=['VALID_FROM', 'VALID_TO', 'VERSION', 'REMARKS']
-    )
-    print(df)
-    df.index.name = 'ID'
-
-    idx = int(input('Input a version ID:'))
-    
-    if not all(available_versions[idx] in vers for vers in versions.values()):
-        logging.error('The version in not present in some of the configurations.')
-        sys.exit()  
         
-    valid_from = available_versions[idx][0]
-    valid_to = available_versions[idx][1]
-    version = available_versions[idx][2]
-    
-    return valid_from, valid_to, version
- 
- 
-def process_dates(tables, args):
-    
-    versions = {}
-    for table_name, table in tables.items():
-        query = select(table.c.version, table.c.remarks)\
-            .where(table.c.valid_from <= valid_from, \
-                table.c.valid_to >= valid_to
-            )
-        results = connection.execute(query).fetchall()
-        versions[table_name] = frozenset(
-            res for res in results
-        )
+    def where(self, table: Table) -> Select:
+       return super(Run, self)._select(table).\
+            select_from(self._join(table)).\
+                where(Files.c.run_id == self.param)
+     
         
-    available_versions = reduce(lambda s1, s2: s1 & s2, versions.values())
-    available_versions = list(available_versions)
+@dataclass        
+class FileName(Run):
+    param: str
     
-    if not args.version:
-        print(f'available verions of configurations:')
+    def where(self, table: Table) -> Select:
+        return super(FileName, self)._select(table).\
+            select_from(super(FileName, self)._join(table)).\
+                where(Files.c.file_name == self.param)
+    
+    
+class Extractor(object):
+    
+    @cached_property
+    def tables(self) -> Dict[str, Table]:
+        table_names = connection.execute(tables_query)
+        tables_dict = {}
+        for table_name in table_names:
+            if not any(re.match(x, table_name[0]) for x in EXCLUDE):
+                tables_dict[table_name[0]] = factory(table_name[0])
+        return tables_dict
+    
+    @staticmethod
+    def __get_df(versions: Set[VersionDetails]) -> pandas.DataFrame:
+        available_versions = reduce(lambda s1, s2: s1 & s2, versions.values())
+        available_versions = list(map(lambda x: x.to_tuple(), available_versions))
+    
         df = pandas.DataFrame(
-            data=available_versions,
+            data=available_versions, 
             index=range(len(available_versions)),
-            columns=['VERSION', 'REMARKS']
+            columns=['VALID_FROM', 'VALID_TO', 'VERSION', 'REMARKS']
         )
         df.index.name = 'ID'
-        print(df)   
-        version_id = int(input('Please choose one [input an index]:'))
-        version = available_versions[version_id]
-        
-    else:
-        version = args.version
+        df['REMARKS'] = df['REMARKS'].apply(lambda x: None if x == '' else x)
+        return df  
     
-    if not all(version in vers for vers in versions.values()):
-        logging.error('The version is not present in some of the configurations.')
-        sys.exit()  
+    def process(self, param: Parameter) -> pandas.DataFrame:
+        if not isinstance(param, Parameter):
+            raise ValueError(f'{param} is not an instance of the subclass of {Parameter}')
+        versions = {}
+        for table_name, table in self.tables.items():
+            s = param.where(table)
+            results = connection.execute(s).fetchall()
+            versions[table_name] = frozenset(
+                VersionDetails(*res) for res in results
+            )
+        return self.__get_df(versions)
     
-    return version     
-
+    @staticmethod
+    def version_exists(df: pandas.DataFrame, version: int) -> bool:
+        version = df.loc[df['VERSION']==version]
+        return not version.empty
+    
+    @staticmethod
+    def filter_by_version(df: pandas.DataFrame, version: int) -> pandas.DataFrame:
+        return  df.loc[df['VERSION']==version]
+    
+    @staticmethod
+    def convert_datetimes(df: pandas.DataFrame) -> pandas.DataFrame:
+        df['VALID_FROM'] = df['VALID_FROM'].apply(convert_datetime)
+        df['VALID_TO'] = df['VALID_TO'].apply(convert_datetime)
+        return df
+    
+    def write_to_file(self, details: SearchDetails, filename: str = None) -> str:
+        valid_from, valid_to, version = details.to_tuple()
+        if not filename:
+            filename = f"conf-{valid_from}-{valid_to}-v-{version}"
+        with open(filename, 'w') as conf:
+            for table_name, table in self.tables.items():
+                conf.write(f'[{table_name}]\n')
+                query = select(table.c.parameters).where(
+                    table.c.valid_from <= valid_from,
+                    table.c.valid_to >= valid_to,
+                    table.c.version == version
+                )
+                result = connection.execute(query).fetchone()
+                if result:
+                    result = result[0]
+                    conf.write(result + '\n\n')
+        return filename
 
 if __name__ == '__main__':
     
@@ -129,42 +170,69 @@ if __name__ == '__main__':
     parser.add_argument('-f', '--file', 
                         help="The run file name to extract datetimes from")
     
-    table_names = connection.execute(tables_query)
-    tables = {}
-    for table_name in table_names:
-        if not any(re.match(x, table_name[0]) for x in EXCLUDE):
-            tables[table_name[0]] = factory(table_name[0])
-    
     args = parser.parse_args()
+    extractor = Extractor()
     
-    if args.validfrom is not None:
+    if args.validfrom is not None and args.validto is not None:
         valid_from = validate_date(args.validfrom, 'validfrom')
-        
-    if args.validto is not None:   
         valid_to = validate_date(args.validto, 'validto')
-    
-    if args.file is not None:
-        valid_from, valid_to, version = process_run(tables, args, run=False)
-    elif args.run is not None:
-        valid_from, valid_to, version = process_run(tables, args, run=True)
-    else:
-        version = process_dates(tables, args)
+        param = DateTimes((valid_from, valid_to))
         
-    if args.name is None:
-        file_name = f'./configuration_{valid_from}_{valid_to}_version_{version}'
-    else:
-        file_name = args.name
-            
-    with open(file_name, 'w') as conf:
-        for table_name, table in tables.items():
-            conf.write(f'[{table_name}]\n')
-            query = select(table.c.parameters).where(
-                table.c.valid_from <= valid_from,
-                table.c.valid_to >= valid_to,
-                table.c.version == version
-            )
-            result = connection.execute(query).fetchone()
-            if result:
-                result = result[0]
-                conf.write(result + '\n\n')
+    elif args.run is not None:
+        try:
+            run = int(args.run)
+            if run < 0:
+                raise ValueError()
+        except:
+            logging.error(f'run must be a positive integer, got {args.run} instead.')
+            sys.exit()
+        param = Run(run)
+    
+    elif args.file is not None:
+        param = FileName(args.file)
+    
+    available_versions = extractor.process(param)
+    version = None
+    version_exists = True
+    versions_table = None
+    if args.version:
+        try:
+            version = int(args.version)
+            if version < 1:
+                raise ValueError()
+        except:
+            logging.error(
+                f'version must be a positive integer greater than 1, got {args.version} instead.')
+            sys.exit()
+
+        version_exists = extractor.version_exists(available_versions, version)
+        if version_exists:
+            versions_table = extractor.filter_by_version(available_versions, version)
+    if not args.version or not version_exists:
+        version_exists = False
+        versions_table = available_versions
+    
+    versions_table = extractor.convert_datetimes(versions_table)
+    if not version_exists:
+        logging.warning('There was no version provided or the provided version does not exist')
+        
+    print(versions_table)
+    idx = input('provide an ID of desired configuration: ')
+    
+    try:
+        idx = int(idx)
+        if not idx in versions_table.index:
+            raise ValueError()
+    except ValueError:
+        logging.error(
+            f'The index must be present in the table above, got {idx} instead')
+        sys.exit()
+        
+    des_version = versions_table.iloc[idx]
+    details = SearchDetails(
+        des_version['VALID_FROM'],
+        des_version['VALID_TO'],
+        des_version['VERSION']
+    )
+    extractor.write_to_file(details, args.name)
     
