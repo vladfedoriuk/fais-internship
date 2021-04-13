@@ -138,7 +138,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - **Note: Either run id's or run file names must be provided if validity dates are omitted, otherwise form will be invalid.**
   - **Note: If any of the run-id\'s are specified, another one must be provided too.**
   - **Note: If any of the run filenames are specified, another one must be provided too.**
-  - If the form is filled correctly and the configuration have sucessfuly been added to the database, a sucess alert will get displayed:
+  - If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed:
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
