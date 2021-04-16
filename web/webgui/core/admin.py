@@ -4,7 +4,7 @@ from .models import *
 # Register your models here.
 
 @admin.register(SFibersStackCalibratorPar, SFibersStackDDLookupTable,\
-    SFibersStackDDUnpackerPar, SFibersStackDigitizerPar, \
+   SFibersStackDDUnpackerPar, SFibersStackDigitizerPar, \
         SFibersStackGeomPar, SFibersStackHitFinderFiberPar, SFibersStackHitFinderPar)
 class ConfigurationAdmin(admin.ModelAdmin):
     date_hierarchy = 'valid_from'
@@ -21,4 +21,8 @@ class FilesAdmin(admin.ModelAdmin):
     ordering = ('-start_time', 'run_id', 'file_name')
     list_display = ('start_time', 'stop_time', 'run_id', 'file_name', 'remarks')
     list_filter = ('start_time', 'stop_time')
-    search_fileds = ('file_name', 'run_id', 'remarks', 'start_time', 'stop_time')
+    search_fields = ('file_name', 'run_id', 'remarks', 'start_time', 'stop_time')
+
+@admin.register(Release)
+class ReleaseAdmin(admin.ModelAdmin):
+    search_fields = ('name', 'comment')

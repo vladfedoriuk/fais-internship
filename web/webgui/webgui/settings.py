@@ -87,7 +87,7 @@ DATABASES = {
         'PORT': 3306
     }
 }
-
+# rafal.lalik@uj.edu.pl
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

@@ -16,7 +16,7 @@ DB = {
 }
 
 tables_query = 'SELECT table_name FROM information_schema.tables WHERE ' + \
-    'table_name NOT IN ("configuration", "files")' + \
+    'table_name NOT IN ("configuration", "files", "release")' + \
             f'AND table_schema = \"{DB["database"]}\";'
 
 EXCLUDE = {
@@ -63,9 +63,9 @@ class ConfTableFactory(object):
             Column('remarks', String),
             autoload_with=engine, extend_existing=True
         )
-
+        
 Files = Table(
-    'files', metadata,
+   'files', metadata,
     Column('id', Integer, primary_key=True),
     Column('file_name', String, nullable=False),
     Column('start_time', DateTime(timezone=True), nullable=False, default=datetime.utcnow),
