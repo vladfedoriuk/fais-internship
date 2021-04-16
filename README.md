@@ -112,7 +112,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - **Note: If any of the validity dates are specified, then another one must be given too.**
   - If the form is filled correctly, the ouput will look like the one in the following screenshot:
         ![output](https://user-images.githubusercontent.com/51965488/114308052-2d200f80-9aeb-11eb-9fa4-945a07d3a32f.png)
-  - The extracted configurations are written down in form of a table with columns (*VALID_FROM, VALID_TO, VERSION, REMARKS*), where *VALID_FROM* is a date and a time a configuration is valid from, *VALID_TO* is a date and a time a configuration is valid to, *VERSION* is a version of a configuration and *REMARS* are the comments optionally provided by the one who added a configuration version to the database.
+  - The extracted configurations are written down in form of a table with columns (*VALID_FROM, VALID_TO, VERSION, REMARKS*), where *VALID_FROM* is a date and a time a configuration is valid from, *VALID_TO* is a date and a time a configuration is valid to, *VERSION* is a version of a configuration and *REMARKS* are the comments optionally provided by the one who added a configuration version to the database.
   - The rows with the details of the configuration versions also comprise a button that allows the user to download the desired version of the configuration.
   - If the version a user is looking for does not exist, or there are no configurations matched to the parameters a user has provided, a corresponding alert will be displayed. 
 ![alert](https://user-images.githubusercontent.com/51965488/114308542-06fb6f00-9aed-11eb-940c-4345b07f55d4.png)
@@ -138,14 +138,14 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - **Note: Either run id's or run file names must be provided if validity dates are omitted, otherwise form will be invalid.**
   - **Note: If any of the run-id\'s are specified, another one must be provided too.**
   - **Note: If any of the run filenames are specified, another one must be provided too.**
-  - If the form is filled correctly and the configuration have sucessfuly been added to the database, a sucess alert will get displayed:
+  - If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed:
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
 - First of all, you need to create the database as described in the `praktyki.sql` file.
-- Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` script
-- To set up a webgui service you need to follow the instrictions:
-    - Set the database configurations. By default configuration look like this:
+- Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
+- To set up a webgui service you need to follow the instructions:
+    - Set up the database configurations. By default, the configurations look like this:
          ```
             DATABASES = {
                 'default': {
@@ -158,7 +158,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
                 }
             }
           ```
-    They can be found in the `settings.py` file in the webgui derictory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to the ones corresponding to the one's database configurations. The username and password must be provided beforehand as the environmental variables: `export username=<your mysql username> && export password=<your mysql password>`
+    They can be found in the `settings.py` file in the webgui directory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to those relevant to the one's database configurations. The username and password must be provided beforehand as the environmental variables: `export username=<your mysql username> && export password=<your mysql password>`
    - perform `python manage.py migrate`
    - create a superuser in order to use the admin pannel: ` python manage.py createsuperuser` provide the admin username and the password (e.g admin / pass4admin)
    - to run the server in development just perform the command: `python manage.py runserver`
