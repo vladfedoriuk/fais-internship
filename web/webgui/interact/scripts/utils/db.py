@@ -63,14 +63,17 @@ class ConfTableFactory(object):
             Column('remarks', String),
             autoload_with=engine, extend_existing=True
         )
-        
-Files = Table(
-   'files', metadata,
-    Column('id', Integer, primary_key=True),
-    Column('file_name', String, nullable=False),
-    Column('start_time', DateTime(timezone=True), nullable=False, default=datetime.utcnow),
-    Column('stop_time', DateTime(timezone=True), nullable=False),
-    Column('remarks', String),
-    Column('run_id', Integer),
-    autoload_with=engine
-)
+
+try:       
+    Files = Table(
+        'files', metadata,
+        Column('id', Integer, primary_key=True),
+        Column('file_name', String, nullable=False),
+        Column('start_time', DateTime(timezone=True), nullable=False, default=datetime.utcnow),
+        Column('stop_time', DateTime(timezone=True), nullable=False),
+        Column('remarks', String),
+        Column('run_id', Integer),
+        autoload_with=engine
+    )
+except:
+    Files = None

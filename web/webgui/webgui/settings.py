@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'webgui.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'praktyki',
-        'USER': os.environ.get('username'),
-        'PASSWORD': os.environ.get('password'),
-        'HOST': '127.0.0.1',
-        'PORT': 3306
+        'NAME': os.environ.get('MYSQL_DATABASE', 'praktyki'),
+        'USER': os.environ.get('MYSQL_USER', 'praktyki'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'pass4praktyki'),
+        'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('MYSQL_PORT', 3306)
     }
 }
 # rafal.lalik@uj.edu.pl
