@@ -142,27 +142,28 @@ The repository for the parameters parsing/extracting scripts and webgui.
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
-- First of all, you need to create the database as described in the `praktyki.sql` file.
-- Secondly, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
+- First of all, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
 - To set up a webgui service you need to follow the instructions:
     - Set up the database configurations. By default, the configurations look like this:
          ```
             DATABASES = {
                 'default': {
                     'ENGINE': 'django.db.backends.mysql',
-                    'NAME': 'praktyki',
-                    'USER': os.environ.get('username'),
-                    'PASSWORD': os.environ.get('password'),
-                    'HOST': '127.0.0.1',
-                    'PORT': 3306
+                    'NAME': os.environ.get('MYSQL_DATABASE', 'praktyki'),
+                    'USER': os.environ.get('MYSQL_USER', 'praktyki'),
+                    'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'pass4praktyki'),
+                    'HOST': os.environ.get('MYSQL_HOST', '127.0.0.1'),
+                    'PORT': os.environ.get('MYSQL_PORT', 3306)
                 }
             }
           ```
-    They can be found in the `settings.py` file in the webgui directory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to those relevant to the one's database configurations. The username and password must be provided beforehand as the environmental variables: `export username=<your mysql username> && export password=<your mysql password>`
+    They can be found in the `settings.py` file in the webgui directory. One might need to change the 'NAME', 'HOST' and 'PORT' parameters to those relevant to the one's database configurations. The *USER* and *PASSWORD* variables must be provided beforehand as the environmental variables: `export MYSQL_USER=<your mysql username> && export MYSQL_PASSWORD=<your mysql password>`
    - perform `python manage.py migrate`
    - create a superuser in order to use the admin pannel: ` python manage.py createsuperuser` provide the admin username and the password (e.g admin / pass4admin)
    - to run the server in development just perform the command: `python manage.py runserver`
    - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
+## Set up with docker-compose:
+   - Alternatively, one can easily have the entire project up and running using docker and docker-compose. If you don't have this software install on your local machine, you will need to get it installed. (An example of installation on ubuntu: https://phoenixnap.com/kb/install-docker-compose-on-ubuntu-20-04 ). Then the whole process of configuring and running the project will end up to be a single command: `docker-compose up` ( the preceding command should be executed within the directory which contains the `docker-compose.yml` file. )
 ### Remarks:
 - **It is not possible to have two runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
 - **It is not possible to have two configurations with the same `valid_from` and `version`**.
