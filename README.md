@@ -164,6 +164,9 @@ The repository for the parameters parsing/extracting scripts and webgui.
    - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
 ## Set up with docker-compose:
    - Alternatively, one can easily have the entire project up and running using docker and docker-compose. If you don't have this software installed on your local machine, you will need to get it installed. (An example of installation on ubuntu: https://phoenixnap.com/kb/install-docker-compose-on-ubuntu-20-04 ). Then the whole process of configuring and running the project will end up to be a single command: `docker-compose up` ( the preceding command should be executed within the directory which contains the `docker-compose.yml` file. )
+   - In order to acces the terminal of the desired container, execute the following commands:
+        - `docker container ps` - obtain the table of running containers
+        - find the id of the container you look for and execute: `docker exec -it <container_id> /bin/bash`
 ### Remarks:
 - **It is not possible to have two runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
 - **It is not possible to have two configurations with the same `valid_from` and `version`**.
