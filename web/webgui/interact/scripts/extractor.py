@@ -2,7 +2,7 @@ from .utils.db import ConfTableFactory, engine, DB, Files, tables_query, EXCLUDE
 from .utils.time import convert_datetime
 from datetime import datetime
 from sqlalchemy.sql import select, join
-from functools import reduce, cached_property
+from functools import reduce
 import pandas
 import re
 from abc import ABC, abstractmethod
@@ -83,7 +83,7 @@ factory = ConfTableFactory()
 
 class Extractor(object):
     
-    @cached_property
+    @property
     def tables(self) -> Dict[str, Table]:
         table_names = connection.execute(tables_query)
         tables_dict = {}
