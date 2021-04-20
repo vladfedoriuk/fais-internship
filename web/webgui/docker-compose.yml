@@ -46,8 +46,6 @@ services:
       - 9081
     volumes:
       - .:/code  
-    
- 
     logging:
       driver: "json-file"
       options:
