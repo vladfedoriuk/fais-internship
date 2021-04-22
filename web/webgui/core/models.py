@@ -18,8 +18,14 @@ class Configuration(models.Model):
         
  
 class Release(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.SlugField(max_length=255, unique=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
+    
+    def __str__(self):
+        return self.__repr__()
+    
+    def __repr__(self):
+        return self.name
     
     class Meta:
         db_table = "release"

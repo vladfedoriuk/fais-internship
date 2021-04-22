@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import datetime
+from core.models import Release
 
 class ParseForm(forms.Form):
     
@@ -152,6 +153,21 @@ class ParseForm(forms.Form):
                 'type': 'file',
                 'class': 'form-control',
                 'aria-describedby': 'configuration-help'
+            }
+        )
+    )
+    
+    release = forms.ModelChoiceField(
+        required=True,
+        label='release',
+        queryset=Release.objects.all(),
+        to_field_name='name',
+        help_text="The release the configuration will be assigned to.",
+        widget=forms.widgets.Select(
+            attrs={
+                'type': 'select',
+                'class': 'form-control',
+                'aria-describedby': 'release-help'
             }
         )
     )

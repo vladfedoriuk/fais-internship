@@ -1,0 +1,42 @@
+<div class="container">
+    <form action={% url "interact:release" %} method="POST">
+        {% csrf_token %}
+        <div class="text-danger">
+            {{ form.non_field_errors }}
+            {% if error %}
+                <ul>
+                    {% for err in error%}
+                        <li> {{ err }} </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    
+        <div class="row form-group">
+            <div class="col">
+                <div class="text-danger">
+                    {{ form.name.errors }}
+                </div>
+                {{ form.name.label_tag }}
+                {{ form.name}}
+                <small id="name-help" class="form-text text-muted"> {{ form.name.help_text }} </small>
+            </div>
+
+            <div class="col">
+                <div class="text-danger">
+                    {{ form.comment.errors }}
+                </div>
+                {{ form.comment.label_tag }}
+                {{ form.comment }}
+                <small id="comment-help" class="form-text text-muted"> {{ form.comment.help_text }} </small>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+

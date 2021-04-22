@@ -1,0 +1,21 @@
+{% extends "interact/base.html"%}
+
+{% block title %} Add a Release {% endblock %}
+
+{% block content %}
+
+    <div class="header-form">
+        <h1> Add a release to the database. </h1>
+    </div>
+
+    {% include "interact/includes/forms/release_form.html" with form=release_form %}
+
+    {% if saved is True %}
+        <div class="alert alert-success" role="alert">
+            The release has been successfully saved.
+        </div>
+    {% endif %}
+
+
+{% endblock %}
+

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import ExtractForm, DownloadForm, ParseForm
+from .forms import ExtractForm, DownloadForm, ParseForm, ReleaseForm
 import core.models 
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
@@ -12,6 +12,36 @@ from .scripts.parser import handle_uploaded_file, ValidityDates, Runs, Filenames
 from django.http import FileResponse
 
 extractor = Extractor()
+
+class ReleaseView(View):
+    release_form_class = ReleaseForm
+    template_name = 'interact/release.html'
+    
+    def get(self, request, *args, **kwargs):
+        release_form = self.release_form_class()
+        return render(
+            request,
+            self.template_name,
+            {
+                'release_form': release_form
+            }
+        )
+    
+    def post(self, request, *args, **kwargs):
+        release_form = self.release_form_class(request.POST)
+        saved = False
+        if release_form.is_valid():
+            release_form.save()
+            saved = True
+        return render(
+            request,
+            self.template_name,
+            {
+                'release_form': release_form,
+                'saved': saved
+            }
+        )
+        
 
 class ParseView(View):
     parse_form_class = ParseForm

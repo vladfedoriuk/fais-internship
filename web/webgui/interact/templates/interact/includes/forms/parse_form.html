@@ -113,6 +113,17 @@
                 <small id="configuration-help" class="form-text text-muted"> {{ form.configuration.help_text }} </small>
             </div>
         </div>
+
+        <div class="row form-group">
+            <div class="col-4">
+                <div class="text-danger">
+                    {{ form.release.errors }}
+                </div>
+                {{ form.release.label_tag }}
+                {{ form.release }}
+                <small id="release-help" class="form-text text-muted"> {{ form.release.help_text }} </small>
+            </div>
+        </div>
     
         <div class="row form-group">
             <div class="text-danger">
@@ -122,6 +133,7 @@
             {{ form.remarks }}
             <small id="remarks-help" class="form-text text-muted"> {{ form.remarks.help_text }} </small>
         </div>
+
 
         <div class="row form-group">
             <div class="col">
