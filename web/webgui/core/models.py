@@ -8,8 +8,7 @@ class Configuration(models.Model):
     remarks = models.CharField(max_length=255, blank=True, null=True)
     release = models.ForeignKey("Release",
                                 on_delete=models.CASCADE,
-                                related_name="%(class)s_versions",
-                                null=True)
+                                related_name="%(class)s_versions")
 
     class Meta:
         abstract = True

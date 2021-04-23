@@ -13,7 +13,7 @@ class ConfigurationAdmin(admin.ModelAdmin):
         'valid_from', 'valid_to', 'version', 'release', 'remarks',
     )
     list_filter = ('valid_from', 'valid_to', 'version', 'release')
-    search_fields = ('valid_from', 'valid_to', 'version', 'remarks')
+    search_fields = ('valid_from', 'valid_to', 'version', 'release__name', 'release__comment', 'remarks')
 
 @admin.register(Files)
 class FilesAdmin(admin.ModelAdmin):
