@@ -10,9 +10,9 @@ class ConfigurationAdmin(admin.ModelAdmin):
     date_hierarchy = 'valid_from'
     ordering = ('-valid_from', 'version')
     list_display = (
-        'valid_from', 'valid_to', 'version', 'remarks',
+        'valid_from', 'valid_to', 'version', 'release', 'remarks',
     )
-    list_filter = ('valid_from', 'valid_to', 'version')
+    list_filter = ('valid_from', 'valid_to', 'version', 'release')
     search_fields = ('valid_from', 'valid_to', 'version', 'remarks')
 
 @admin.register(Files)
