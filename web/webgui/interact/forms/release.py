@@ -44,8 +44,8 @@ class ReleaseForm(forms.ModelForm):
         model = self.Meta.model
         name = cleaned_data['name']
         releases = model.objects.filter(name=name)
-        if len(releases) != 0:
+        if releases:
             raise ValidationError('There is already a release with such a name in the database.')
-        return cleaned_data  
+        return name
             
             

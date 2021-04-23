@@ -28,48 +28,48 @@ class Release(models.Model):
         return self.name
     
     class Meta:
-        db_table = "release"
+        db_table = "Release"
         verbose_name = db_table
         verbose_name_plural = verbose_name       
 
 class SFibersStackCalibratorPar(Configuration):
     class Meta:
         db_table = "SFibersStackCalibratorPar"
-        verbose_name = "SFibersStackCalibratorPar"
+        verbose_name = db_table
         verbose_name_plural = verbose_name
 
 class SFibersStackDDLookupTable(Configuration):
     class Meta:
         db_table = "SFibersStackDDLookupTable"
-        verbose_name = "SFibersStackDDLookupTable"
+        verbose_name = db_table
         verbose_name_plural = verbose_name
 
 
 class SFibersStackDDUnpackerPar(Configuration):
     class Meta:
         db_table = "SFibersStackDDUnpackerPar"
-        verbose_name = "SFibersStackDDUnpackerPar"
+        verbose_name = db_table
         verbose_name_plural = verbose_name
 
 
 class SFibersStackDigitizerPar(Configuration):
     class Meta:
         db_table = "SFibersStackDigitizerPar"
-        verbose_name = "SFibersStackDigitizerPar"
+        verbose_name = db_table
         verbose_name_plural = verbose_name
     
 
 class SFibersStackGeomPar(Configuration):
     class Meta:
         db_table = "SFibersStackGeomPar"
-        verbose_name = "SFibersStackGeomPar"
+        verbose_name = db_table
         verbose_name_plural = verbose_name
 
 
 class SFibersStackHitFinderFiberPar(Configuration):
     class Meta:
         db_table = "SFibersStackHitFinderFiberPar"
-        verbose_name = "SFibersStackHitFinderFiberPar"
+        verbose_name = db_table
         verbose_name_plural = verbose_name
 
 

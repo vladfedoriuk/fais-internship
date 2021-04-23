@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .forms import ExtractForm, DownloadForm, ParseForm, ReleaseForm
-import core.models 
+from core.models import Release
+from django.apps import apps
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
 from django.views import View
@@ -65,7 +66,17 @@ class ParseView(View):
         if parse_form.is_valid():
             cd = parse_form.cleaned_data
             conf_file = handle_uploaded_file(cd['configuration'])
-            
+            release = Release.objects.filter(name=cd['release'])
+            if not release:
+                return render(
+                    request,
+                    self.template_name,
+                    {
+                        'parse_form': parse_form,
+                        'error': ('The provided release does not exist.', )
+                    }
+                )
+            release = release.first()  
             valid_from = cd.get('valid_from')
             valid_to = cd.get('valid_to')
             if not valid_from and not valid_to:
@@ -97,15 +108,17 @@ class ParseView(View):
                         )
             
             if valid_from and valid_to:
-                try:
+                try: 
                     write_to_database(
                         conf_file_path=conf_file,
+                        release=release,
                         version = cd.get('version'),
                         valid_from=valid_from,
                         valid_to=valid_to,
                         remarks=cd.get('remarks')
                     )
                     sent = True
+                    
                 except Exception as e:
                     error = e.args
                     return render(
