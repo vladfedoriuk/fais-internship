@@ -11,3 +11,7 @@
 div[class="alert alert-warning"] p{
     font-style: italic;
 }
+
+#navigation {
+    background-color: #97cff7;
+}

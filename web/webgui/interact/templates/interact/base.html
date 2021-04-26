@@ -8,6 +8,25 @@
         {% block styles %} {% include "interact/includes/styles.html" %} {% endblock %}
     </head>
     <body>
+
+        <nav class="navbar navbar-expand-lg navbar-light" id="navigation">
+            <a class="navbar-brand">Interact</a> 
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Main</a>
+                </li>
+                <li class="nav-item>">
+                    <a class="nav-link" href="{% url "interact:parse" %}">Add</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "interact:extract" %}">Retrieve</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "interact:release" %}">Release</a>
+                </li>
+            </div>
+        </nav>
+
         <div class="container">
             {% block content %}
             {% endblock %}
