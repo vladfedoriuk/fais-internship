@@ -15,51 +15,26 @@ from .scripts.parser import handle_uploaded_file, ValidityDates, Runs, Filenames
 from django.http import FileResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 extractor = Extractor()
 
 
-class InteractLoginView(View):
-    template_name = 'interact/login.html'
-    user_form_class = AuthenticationForm
-    
-    def post(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(reverse_lazy('interact:main'))
-        else:
-            user = None
-            user = authenticate(
-                request,
-                username=cd.get('username'),
-                password=cd.get('password')
-            )
-            if user is not None:
-                login(request, user)
-                return redirect(reverse_lazy('interact:main'))
-        
-            return render(
-                request,
-                self.template_name,
-                    {
-                        'error': 'Either username or password is incorrect.'
-                    }
-                )
-        
-    
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return render(
-                request,
-                self.template_name,
-                {
-                    'form': self.user_form_class()
-                }        
-            )
-        else: 
-            return redirect(reverse_lazy('interact:main'))
-            
-    
+class InteractLoginRequiredMixin(LoginRequiredMixin):
+    login_url=reverse_lazy('interact:login')
 
+
+class InteractLoginView(LoginView):
+    template_name = 'interact/login.html'
+
+
+class InteractLogoutView(LogoutView):
+    next_page = reverse_lazy('interact:login')
+
+
+@login_required(login_url=reverse_lazy('interact:login'))
 @require_http_methods(['GET'])
 def main(request):
     return render(
@@ -68,7 +43,7 @@ def main(request):
     )
     
 
-class ReleaseView(View):
+class ReleaseView(InteractLoginRequiredMixin, View):
     release_form_class = ReleaseForm
     template_name = 'interact/release.html'
     
@@ -98,7 +73,7 @@ class ReleaseView(View):
         )
         
 
-class ParseView(View):
+class ParseView(InteractLoginRequiredMixin, View):
     parse_form_class = ParseForm
     template_name = 'interact/parse.html'
     
@@ -204,6 +179,7 @@ class ParseView(View):
         )
 
 
+@login_required(login_url=reverse_lazy('interact:login'))
 @require_http_methods(['POST'])
 def download(request):
     form = DownloadForm(request.POST)
@@ -218,7 +194,8 @@ def download(request):
     raise Http404('validity dates or version are not valid')
     
 
-class ExtractView(View):
+class ExtractView(InteractLoginRequiredMixin, View):
+    login_url=reverse_lazy('interact:login')
     extract_form_class = ExtractForm
     download_form_class = DownloadForm
     template_name = 'interact/extract.html'

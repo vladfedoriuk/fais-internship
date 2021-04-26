@@ -9,5 +9,6 @@ urlpatterns = [
     path('retrieve/', views.ExtractView.as_view(), name='extract'),
     path('download/', views.download, name='download'),
     path('release/', views.ReleaseView.as_view(), name='release'),
-    path('login/', views.InteractLoginView.as_view(), name='login')
+    path('login/', views.InteractLoginView.as_view(), name='login'),
+    path('logout/', views.InteractLogoutView.as_view(), name='logout')
 ]
