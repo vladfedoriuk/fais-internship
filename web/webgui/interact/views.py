@@ -1,18 +1,72 @@
-from django.shortcuts import render
-from .forms import ExtractForm, DownloadForm, ParseForm, ReleaseForm
+from django.shortcuts import render, redirect
+from .forms import ExtractForm, DownloadForm, ParseForm, ReleaseForm, \
+    LoginForm
 from core.models import Release
 from django.apps import apps
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
 from django.views import View
+from django.urls import reverse_lazy
 from .scripts.extractor import Extractor, DateTimes, Run, FileName, \
     SearchDetails, VersionDetails
 from .scripts.parser import handle_uploaded_file, ValidityDates, Runs, Filenames, \
     write_to_database
 
 from django.http import FileResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 
 extractor = Extractor()
+
+
+class InteractLoginView(View):
+    template_name = 'interact/login.html'
+    user_form_class = AuthenticationForm
+    
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(reverse_lazy('interact:main'))
+        else:
+            user = None
+            user = authenticate(
+                request,
+                username=cd.get('username'),
+                password=cd.get('password')
+            )
+            if user is not None:
+                login(request, user)
+                return redirect(reverse_lazy('interact:main'))
+        
+            return render(
+                request,
+                self.template_name,
+                    {
+                        'error': 'Either username or password is incorrect.'
+                    }
+                )
+        
+    
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(
+                request,
+                self.template_name,
+                {
+                    'form': self.user_form_class()
+                }        
+            )
+        else: 
+            return redirect(reverse_lazy('interact:main'))
+            
+    
+
+@require_http_methods(['GET'])
+def main(request):
+    return render(
+        request,
+        'interact/base.html'
+    )
+    
 
 class ReleaseView(View):
     release_form_class = ReleaseForm

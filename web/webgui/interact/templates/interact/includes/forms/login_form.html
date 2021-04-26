@@ -1,0 +1,50 @@
+<div class="container">
+    <form action={% url "interact:login" %} method="POST" class="centered">
+        {% csrf_token %}
+        <div class="text-danger centered">
+            {{ form.non_field_errors }}
+            {% if error %}
+                <ul>
+                    <li> {{ error }} </li>
+                </ul>
+            {% endif %}
+        </div>
+    
+        <div class="row form-group d-flex justify-content-center">
+            <div class="col-sm-2 col-form-label">
+                <div class="text-danger">
+                    {{ form.username.errors }}
+                </div>
+                {{ form.username.label_tag }}
+            </div>
+            <div class="col-sm-2">
+                {{ form.username }}
+                <small id="date-from-help" class="form-text text-muted">
+                    {{ form.username.help_text }} 
+                </small>
+            </div>
+        </div>
+
+         <div class="row form-group d-flex justify-content-center">
+            <div class="col-2 col-form-label">
+                <div class="text-danger">
+                    {{ form.password.errors }}
+                </div>
+                {{ form.password.label_tag }}
+            </div>
+            <div class="col-sm-2">
+                {{ form.password }}
+                <small id="date-from-help" class="form-text text-muted">
+                    {{ form.password.help_text }}
+                </small>
+            </div>
+        </div>
+
+        <div class="centered row form-group centered">
+            <div class="col">
+                <button type="submit" class="btn btn-success">Log in</button>
+            </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        </div>
+    </form>
+</div>
