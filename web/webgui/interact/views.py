@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import ExtractForm, DownloadForm, ParseForm, ReleaseForm, \
     LoginForm
-from core.models import Release
+from core.models import Release, Files
 from django.apps import apps
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
@@ -11,29 +11,39 @@ from .scripts.extractor import Extractor, DateTimes, Run, FileName, \
     SearchDetails, VersionDetails
 from .scripts.parser import handle_uploaded_file, ValidityDates, Runs, Filenames, \
     write_to_database
-
 from django.http import FileResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
+
 
 extractor = Extractor()
 
 
 class InteractLoginRequiredMixin(LoginRequiredMixin):
-    login_url=reverse_lazy('interact:login')
+    login_url = reverse_lazy('interact:login')
 
 
 class InteractLoginView(LoginView):
     template_name = 'interact/login.html'
+    redirect_authenticated_user = True
+    authentication_form = LoginForm
 
 
-class InteractLogoutView(LogoutView):
+class InteractLogoutView(InteractLoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('interact:login')
 
 
+class FilesListView(InteractLoginRequiredMixin, ListView):
+    model = Files
+    context_object_name = 'files'
+    paginate_by = 5
+    template_name = 'interact/files.html'
+    
+    
 @login_required(login_url=reverse_lazy('interact:login'))
 @require_http_methods(['GET'])
 def main(request):

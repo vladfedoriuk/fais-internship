@@ -1,0 +1,36 @@
+{% extends "interact/base.html" %}
+
+{% block title %} Files {% endblock %}
+
+{% block content %}
+    <div class="header-form">
+        <h1> Files </h1>
+    </div>
+    <div class="container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> start time </th>
+                    <th> stop time </th>
+                    <th> run id </th>
+                    <th> file name </th>
+                    <th> remarks </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                    <tr>
+                        <td> {{ file.start_time }} </td>
+                        <td> {{ file.stop_time  }} </td>
+                        <td> {{ file.run_id }} </td>
+                        <td> {{ file.file_name|truncatewords:30 }} </td>
+                        <td> {{ file.remarks|truncatewords:30|linebreaks }} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "interact/includes/pagination.html" with page=page_obj %}
+
+{% endblock %}

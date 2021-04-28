@@ -24,13 +24,21 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url "interact:release" %}">Release</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "interact:files" %}">Files</a>
+                </li>
             </ul>
-            <div class="d-flex flex-row-reverse">
+            <div class="d-flex flex-row-reverse container">
                 {% if user.is_authenticated%}
-                    <form method="POST" action="{% url "interact:logout" %}">
-                        {% csrf_token %}
-                        <button class="btn btn-outline-danger" type="submit"> Log out</button>
-                    </form>
+                    <div class="logout-username-wrapper">
+                        <p class="d-flex flex-row-reverse" id="login-user">
+                            Logged in as: {{ user.username }}
+                        </p>
+                        <form method="POST" action="{% url "interact:logout" %}">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-danger" type="submit"> Log out</button>
+                        </form>
+                    </div>
                 {% else %}
                     <a href="{% url "interact:login" %}"> 
                         <button class="btn btn-outline-success" type="submit"> Log in</button>
