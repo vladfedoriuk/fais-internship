@@ -27,12 +27,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url "interact:files" %}">Files</a>
                 </li>
+                {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="admin-link" href="{% url 'admin:index' %}">Admin</a>
+                    </li>
+                {% endif %}
             </ul>
-            <div class="d-flex flex-row-reverse container">
+            <div class="container d-flex flex-row-reverse">
                 {% if user.is_authenticated%}
-                    <div class="logout-username-wrapper">
-                        <p class="d-flex flex-row-reverse" id="login-user">
-                            Logged in as: {{ user.username }}
+                    <div class="row">
+                        <p class="col d-flex flex-row-reverse" id="login-user">
+                                Logged in as: {{ user.username }}
                         </p>
                         <form method="POST" action="{% url "interact:logout" %}">
                             {% csrf_token %}

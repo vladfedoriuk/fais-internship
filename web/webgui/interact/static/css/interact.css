@@ -27,13 +27,16 @@ div[class="alert alert-warning"] p{
     margin-top: 80px;
 }
 
-.logout-username-wrapper {
-    display: grid;
-    grid-template-columns: auto 30%;
-    grid-column-gap: 3%;
-}
-
-#login-user{
+#login-user {
     padding-top: 5%;
     color: green;
+}
+
+#admin-link {
+    color: green;
+    text-decoration: underline;
+}
+
+#admin-link:hover{
+    color: darkgreen;
 }

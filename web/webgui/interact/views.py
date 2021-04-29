@@ -42,7 +42,7 @@ class InteractLogoutView(InteractLoginRequiredMixin, LogoutView):
 class FilesListView(InteractLoginRequiredMixin, ListView):
     model = Files
     context_object_name = 'files'
-    paginate_by = 5
+    paginate_by = 10
     template_name = 'interact/files.html'
     
     
@@ -61,7 +61,7 @@ class ReleaseView(InteractLoginRequiredMixin, View):
     
     def __get_paginator(self, page: Optional[int]) -> Page:
         releases = Release.objects.all()
-        paginator = Paginator(releases, 3) # 3 releases per page
+        paginator = Paginator(releases, 10) # 10 releases per page
         try:
             releases = paginator.page(page)
         except PageNotAnInteger:
