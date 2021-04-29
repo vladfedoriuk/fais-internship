@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 import datetime
+from datetime import time
 
 class ExtractForm(forms.Form):
     
@@ -21,7 +22,7 @@ class ExtractForm(forms.Form):
         required=False,
         label="time from",
         # initial="00:00:00",
-        help_text="The time configuration is valid from.",
+        help_text="The time configuration is valid from. If not provided, will be set to 00:00",
         widget=forms.widgets.TimeInput(
             attrs={
                 'type': 'time', 
@@ -48,7 +49,7 @@ class ExtractForm(forms.Form):
         required=False,
         label="time to",
         # initial="00:00:00",
-        help_text="The time configuration is valid to.",
+        help_text="The time configuration is valid to. If not provided, will be set to 23:59",
         widget=forms.widgets.TimeInput(
             attrs={
                 'type': 'time',
@@ -120,7 +121,7 @@ class ExtractForm(forms.Form):
             
         if (valid_from_date and not valid_to_date) or (valid_to_date and not valid_from_date):
             raise ValidationError(
-                'If any of the validity dates are specified, then another one must be given too.'
+                'If any of the validity dates is specified, then another one must be given too.'
             )
             
         if valid_from_date and valid_to_date:
@@ -128,13 +129,15 @@ class ExtractForm(forms.Form):
                 self.cleaned_data['valid_from'] = datetime.datetime.combine(
                     valid_from_date, valid_from_time)
             else:
-                self.cleaned_data['valid_from'] = valid_from_date
+                self.cleaned_data['valid_from'] = datetime.datetime.combine(
+                    valid_from_date, time(hour=0, minute=0, second=0))
             
             if valid_to_time:
                 self.cleaned_data['valid_to'] = datetime.datetime.combine(
                     valid_to_date, valid_to_time)
             else:
-                self.cleaned_data['valid_to'] = valid_to_date
+                self.cleaned_data['valid_to'] = datetime.datetime.combine(
+                    valid_to_date, time(hour=23, minute=59, second=59))
             
         else: 
             run = cleaned_data.get('run')
