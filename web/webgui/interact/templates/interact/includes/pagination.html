@@ -1,19 +1,21 @@
-<ul class="pagination justify-content-center">
-    {% if page.has_previous %}
-       <li class="page-item">
-            <a href="?page={{page.previous_page_number}}"> Previous </a>
-        </li>
-    {% endif %}
-
-    <li class="page-item">
-        <div class="col">
-            Page {{page.number}} of {{ page.paginator.num_pages }}.
-        </div>
-    </li>
-
-    {% if page.has_next %}
-        <li class="page-item">
-            <a href="?page={{page.next_page_number}}"> Next </a>
-        </li>
-    {% endif %}
-</ul>
+<nav aria-label="page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{page.previous_page_number}}">Previous</a>
+            </li>
+        {% endif %}
+        {% for pg in page.paginator.page_range%}
+            <li class="page-item">
+                {%if page.number != pg %}
+                    <a class="page-link" href="?page={{pg}}"> {{pg}} </a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        {% if page.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{page.next_page_number}}"> Next </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
