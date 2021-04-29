@@ -40,3 +40,7 @@ div[class="alert alert-warning"] p{
 #admin-link:hover{
     color: darkgreen;
 }
+
+#page-link{
+    text-decoration: underline;
+}

@@ -5,9 +5,12 @@
                 <a class="page-link" href="?page={{page.previous_page_number}}">Previous</a>
             </li>
         {% endif %}
-        {% for pg in page.paginator.page_range%}
+
+        {% for pg in page_range %}
             <li class="page-item">
-                {%if page.number != pg %}
+                {% if pg == page.number %}
+                    <a class="page-link" id="page-link" href="?page={{pg}}"> {{pg}} </a>
+                {% else %}
                     <a class="page-link" href="?page={{pg}}"> {{pg}} </a>
                 {% endif %}
             </li>

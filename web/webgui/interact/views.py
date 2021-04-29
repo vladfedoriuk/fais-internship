@@ -17,10 +17,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
 from django.core.paginator import Paginator, EmptyPage,\
     PageNotAnInteger, Page
-from typing import Optional
+from typing import Optional, Tuple, List
+from django.db.models.query import QuerySet
 
 extractor = Extractor()
 
@@ -39,11 +39,25 @@ class InteractLogoutView(InteractLoginRequiredMixin, LogoutView):
     next_page = reverse_lazy('interact:login')
 
 
-class FilesListView(InteractLoginRequiredMixin, ListView):
-    model = Files
-    context_object_name = 'files'
-    paginate_by = 10
-    template_name = 'interact/files.html'
+class PaginatedMixin:
+    pages_per_pagination = 3
+    records_per_page = 3
+    
+    def get_paginator(self, queryset: QuerySet, page: Optional[int]) -> Tuple[Page, List]:
+        paginator = Paginator(queryset, self.records_per_page) 
+        try:
+            page_obj = paginator.page(page)
+        except PageNotAnInteger:
+            page = 1
+            page_obj = paginator.page(page)
+        except EmptyPage:
+            page = paginator.num_pages
+            page_obj = paginator.page(page)
+        page = int(page)
+        page_range = paginator.page_range[page - 1: page + self.pages_per_pagination - 1]
+        if len(page_range) < self.pages_per_pagination:
+            page_range = paginator.page_range[-self.pages_per_pagination:]
+        return page_obj, page_range
     
     
 @login_required(login_url=reverse_lazy('interact:login'))
@@ -55,38 +69,27 @@ def main(request):
     )
     
 
-class ReleaseView(InteractLoginRequiredMixin, View):
+class ReleaseView(PaginatedMixin, InteractLoginRequiredMixin, View):
     release_form_class = ReleaseForm
     template_name = 'interact/release.html'
-    
-    def __get_paginator(self, page: Optional[int]) -> Page:
-        releases = Release.objects.all()
-        paginator = Paginator(releases, 10) # 10 releases per page
-        try:
-            releases = paginator.page(page)
-        except PageNotAnInteger:
-            # if page is not an integer, deliver the first page
-            releases = paginator.page(1)
-        except EmptyPage:
-            # if page is out of range, deliver last page of results
-            releases = paginator.page(paginator.num_pages)
-        return releases
+    records_per_page = 10
         
     def get(self, request, *args, **kwargs):
         page = request.GET.get('page') 
-        releases = self.__get_paginator(page)       
+        releases, page_range = self.get_paginator(Release.objects.all(), page)       
         release_form = self.release_form_class()
         return render(
             request,
             self.template_name,
             { 
                 'release_form': release_form,
-                'page_obj': releases
+                'page_obj': releases,
+                'page_range': page_range
             }
         )
     
     def post(self, request, *args, **kwargs):
-        releases = self.__get_paginator(1)
+        releases, page_range = self.get_paginator(Release.objects.all(), 1)
         release_form = self.release_form_class(request.POST)
         saved = False
         if release_form.is_valid():
@@ -98,9 +101,28 @@ class ReleaseView(InteractLoginRequiredMixin, View):
             {
                 'release_form': release_form,
                 'saved': saved,
-                'page_obj': releases
+                'page_obj': releases,
+                'page_range': page_range
             }
         )
+
+
+class FilesListView(PaginatedMixin, InteractLoginRequiredMixin, View):
+    template_name = 'interact/files.html'
+    records_per_page = 10
+        
+    def get(self, request, *args, **kwargs):
+        page = request.GET.get('page') 
+        releases, page_range = self.get_paginator(Files.objects.all(), page)       
+        return render(
+            request,
+            self.template_name,
+            { 
+                'page_obj': releases,
+                'page_range': page_range
+            }
+        )
+
         
 
 class ParseView(InteractLoginRequiredMixin, View):
