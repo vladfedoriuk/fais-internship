@@ -18,7 +18,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView
-
+from django.core.paginator import Paginator, EmptyPage,\
+    PageNotAnInteger, Page
+from typing import Optional
 
 extractor = Extractor()
 
@@ -57,17 +59,34 @@ class ReleaseView(InteractLoginRequiredMixin, View):
     release_form_class = ReleaseForm
     template_name = 'interact/release.html'
     
+    def __get_paginator(self, page: Optional[int]) -> Page:
+        releases = Release.objects.all()
+        paginator = Paginator(releases, 3) # 3 releases per page
+        try:
+            releases = paginator.page(page)
+        except PageNotAnInteger:
+            # if page is not an integer, deliver the first page
+            releases = paginator.page(1)
+        except EmptyPage:
+            # if page is out of range, deliver last page of results
+            releases = paginator.page(paginator.num_pages)
+        return releases
+        
     def get(self, request, *args, **kwargs):
+        page = request.GET.get('page') 
+        releases = self.__get_paginator(page)       
         release_form = self.release_form_class()
         return render(
             request,
             self.template_name,
-            {
-                'release_form': release_form
+            { 
+                'release_form': release_form,
+                'page_obj': releases
             }
         )
     
     def post(self, request, *args, **kwargs):
+        releases = self.__get_paginator(1)
         release_form = self.release_form_class(request.POST)
         saved = False
         if release_form.is_valid():
@@ -78,7 +97,8 @@ class ReleaseView(InteractLoginRequiredMixin, View):
             self.template_name,
             {
                 'release_form': release_form,
-                'saved': saved
+                'saved': saved,
+                'page_obj': releases
             }
         )
         
