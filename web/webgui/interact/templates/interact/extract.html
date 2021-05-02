@@ -7,8 +7,6 @@
         <h1> Retrieve the configurations from the database. </h1>
     </div>
 
-    {% include "interact/includes/forms/extract_form.html" with form=extract_form %}
-    
     {% if versions.empty %}
         <div class="alert alert-warning" role="alert">
             <p>
@@ -22,6 +20,8 @@
             </p>
         </div>
     {% endif %}
+
+    {% include "interact/includes/forms/extract_form.html" with form=extract_form %}
     
     {% if versions is not None and not versions.empty %}
         <div>

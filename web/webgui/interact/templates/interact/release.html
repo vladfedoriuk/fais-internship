@@ -8,13 +8,13 @@
         <h1> Add a release to the database. </h1>
     </div>
 
-    {% include "interact/includes/forms/release_form.html" with form=release_form %}
-
     {% if saved is True %}
         <div class="alert alert-success" role="alert">
             The release has been successfully saved.
         </div>
     {% endif %}
+    
+    {% include "interact/includes/forms/release_form.html" with form=release_form %}
 
     <div class="header-form">
         <h3> Releases </h3>
