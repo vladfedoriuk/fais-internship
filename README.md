@@ -153,7 +153,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - **Note: If any of the run filenames are specified, another one must be provided too.**
   - **Note: If the "time from" is not provided, it will be set to 00:00**
   - **Note: If the "time to" is not provided, it will be set to 23:59**
-  - If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed:
+  - If the form is filled correctly and the configuration has sucessfuly been added to the database, a success alert will get displayed:
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
 ### Add a Release
@@ -163,7 +163,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   ------------- | ------------------------------------------
   name          | The name of a releae. 
   comment       | The optional comment about a release. 
-- If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed.
+- If the form is filled correctly and the release has sucessfuly been added to the database, a success alert will get displayed.
 - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
 - First of all, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
