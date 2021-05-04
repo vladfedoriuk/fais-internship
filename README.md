@@ -1,5 +1,8 @@
 The repository for the parameters parsing/extracting scripts and webgui. 
 ## Scripts
+
+*Note that the scripts are no longer supported. Use web gui instead.*
+
 - *parser.py* is meant to parse and convert a configuration file into the database tables records
 - *extractor.py* is meant to extract the configurations into a single text file
 
@@ -88,15 +91,23 @@ The repository for the parameters parsing/extracting scripts and webgui.
     -f FILE, --file FILE  The run file name to extract datetimes from
     ```
 ## WEB GUI
-- Web interface basically consists of three services: an administration page available via accessing `/admin` url, a page for retrieving the arguments from the database: `/interact/retrieve` and a page for adding the configurations to the database: `/interact/add`.
+- Web interface basically consists of  services: 
+    -an administration page available via accessing `/admin` url
+    - a page for retrieving the arguments from the database: `/interact/retrieve`
+    - a page for adding the configurations to the database: `/interact/add`
+    - a page for viewing the existing files in the database: `/interact/files`
+    - a page for adding and viewing the releases present in the database: `/interact/release`
+    - a page to log in: `/interact/login`
 - Those are corresponding screenshots of the pages mentioned above:
-    ![admin](https://user-images.githubusercontent.com/51965488/114301545-02738e00-9ace-11eb-82d5-2840d758df48.png)
+    ![admin](https://user-images.githubusercontent.com/51965488/117056354-e5c12380-ad24-11eb-8525-6d1c5d8fc613.png)
+    ![retrieve](https://user-images.githubusercontent.com/51965488/117056456-fe313e00-ad24-11eb-8652-3db6a51d8517.png)
+    ![add](https://user-images.githubusercontent.com/51965488/117056375-ec4f9b00-ad24-11eb-8104-b5c69209fb67.png)
+    ![files](https://user-images.githubusercontent.com/51965488/117056499-08533c80-ad25-11eb-950a-a6d636be291d.png)
+    ![release](https://user-images.githubusercontent.com/51965488/117056515-0ee1b400-ad25-11eb-8631-17ff97c91bf8.png)
+    ![login](https://user-images.githubusercontent.com/51965488/117058731-a6480680-ad27-11eb-87ac-ba4e04cf9076.png)
     
-    ![retrieve](https://user-images.githubusercontent.com/51965488/114301602-42d30c00-9ace-11eb-820a-bcd0974d659b.png)
-    
-    ![add](https://user-images.githubusercontent.com/51965488/114301655-83328a00-9ace-11eb-9075-c618d4783622.png)
-
 - The administration service allows a user to perform direct CRUD operations on the database. It provides a wide range of functionalities, such as searching the database concerning provided parameters, as well as editing, deleting, or creating the records in the particular tables. What is more, the administrator is granted to create new users. 
+
 ### Retrieve the configurations
 - "Retrieve the configurations" page is a form that makes it possible to extract the configurations from all the tables in the database for given parameters. The parameters here are similar to those used in the `extractor.py` script. 
 - Here are the meanings of the parameters used in the form:
@@ -116,7 +127,8 @@ The repository for the parameters parsing/extracting scripts and webgui.
   - The rows with the details of the configuration versions also comprise a button that allows the user to download the desired version of the configuration.
   - If the version a user is looking for does not exist, or there are no configurations matched to the parameters a user has provided, a corresponding alert will be displayed. 
 ![alert](https://user-images.githubusercontent.com/51965488/114308542-06fb6f00-9aed-11eb-940c-4345b07f55d4.png)
-
+- **Note: If the "time from" is not provided, it will be set to 00:00**
+- **Note: If the "time to" is not provided, it will be set to 23:59**
 ### Add a Configuration 
 - "Add a Configuration" page is a form that makes it possible to add the configurations to the database. The parameters here are similar to those used in the `parser.py` script. 
 - Here are the meanings of the parameters used in the form:
@@ -131,16 +143,28 @@ The repository for the parameters parsing/extracting scripts and webgui.
   run-from file name | The name of a run file from which the configuration is valid. 
   run-to file name   | The name of a run file up to which the configuration is valid. 
   version            | The version of the configuration. 
+  release            | The release the configuration will be assigned to. This is a selection input field, where the options are the releases present in the database.
   configuration file | A file containing the configuration.  
   remarks | The optional remarks about the configuration.
   
-  - **Note: If any of the validity dates are specified, then another one must be given too.**
+  - **Note: If any of the validity dates is specified, then another one must be given too.**
   - **Note: Either run id's or run file names must be provided if validity dates are omitted, otherwise form will be invalid.**
   - **Note: If any of the run-id\'s are specified, another one must be provided too.**
   - **Note: If any of the run filenames are specified, another one must be provided too.**
+  - **Note: If the "time from" is not provided, it will be set to 00:00**
+  - **Note: If the "time to" is not provided, it will be set to 23:59**
   - If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed:
        ![success-alert](https://user-images.githubusercontent.com/51965488/114310302-154c8980-9af3-11eb-8415-33216a324b41.png)
   - Otherwise the corresponding error messages will pop up above the form.
+### Add a Release
+- "Add a Release" page is a form that allows a user to add a release to the database as well as review the existing ones.
+- Here are the meanings of the parameters used in the form:
+- Parameter     |                 Meaning
+  ------------- | ------------------------------------------
+  name          | The name of a releae. 
+  comment       | The optional comment about a release. 
+- If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed
+- Otherwise the corresponding error messages will pop up above the form.
 ### Set up
 - First of all, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
 - To set up a webgui service you need to follow the instructions:
@@ -163,10 +187,14 @@ The repository for the parameters parsing/extracting scripts and webgui.
    - to run the server in development just perform the command: `python manage.py runserver`
    - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
 ## Set up with docker-compose:
+   - **Note: If you decide to set up the projects with docker and docker-compose, disregard the preceding instructons. Do not change any settings/configurations and do not perform any additional command apart from those mentioned below!**
    - Alternatively, one can easily have the entire project up and running using docker and docker-compose. If you don't have this software installed on your local machine, you will need to get it installed. (An example of installation on ubuntu: https://phoenixnap.com/kb/install-docker-compose-on-ubuntu-20-04 ). Then the whole process of configuring and running the project will end up to be a single command: `docker-compose up` ( the preceding command should be executed within the directory which contains the `docker-compose.yml` file. )
    - In order to acces the terminal of the desired container, execute the following commands:
         - `docker container ps` - obtain the table of running containers
         - find the id of the container you look for and execute: `docker exec -it <container_id> /bin/bash`
+   - Try to log in as admin (username: admin, password: pass4admin). If you were informed that there is no such user, open a terminal of `web_webui` container and create a superuser:
+        - `docker exec -it <webgui container_id> /bin/bash`   
+        - `python manage.py createsuperuser`
 ### Remarks:
 - **It is not possible to have two runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
 - **It is not possible to have two configurations with the same `valid_from` and `version`**.
