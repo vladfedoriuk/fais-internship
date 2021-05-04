@@ -101,7 +101,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
 - Those are corresponding screenshots of the pages mentioned above:
     ![admin](https://user-images.githubusercontent.com/51965488/117056354-e5c12380-ad24-11eb-8525-6d1c5d8fc613.png)
     ![retrieve](https://user-images.githubusercontent.com/51965488/117056456-fe313e00-ad24-11eb-8652-3db6a51d8517.png)
-    ![add](https://user-images.githubusercontent.com/51965488/117056375-ec4f9b00-ad24-11eb-8104-b5c69209fb67.png)
+    ![add](https://user-images.githubusercontent.com/51965488/117059264-49008500-ad28-11eb-8227-d529f2a52d9d.png)
     ![files](https://user-images.githubusercontent.com/51965488/117056499-08533c80-ad25-11eb-950a-a6d636be291d.png)
     ![release](https://user-images.githubusercontent.com/51965488/117056515-0ee1b400-ad25-11eb-8631-17ff97c91bf8.png)
     ![login](https://user-images.githubusercontent.com/51965488/117058731-a6480680-ad27-11eb-87ac-ba4e04cf9076.png)
