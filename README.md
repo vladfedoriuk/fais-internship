@@ -92,7 +92,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
     ```
 ## WEB GUI
 - Web interface basically consists of  services: 
-    -an administration page available via accessing `/admin` url
+    - an administration page available via accessing `/admin` url
     - a page for retrieving the arguments from the database: `/interact/retrieve`
     - a page for adding the configurations to the database: `/interact/add`
     - a page for viewing the existing files in the database: `/interact/files`
@@ -163,7 +163,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
   ------------- | ------------------------------------------
   name          | The name of a releae. 
   comment       | The optional comment about a release. 
-- If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed
+- If the form is filled correctly and the configuration has sucessfuly been added to the database, a sucess alert will get displayed.
 - Otherwise the corresponding error messages will pop up above the form.
 ### Set up
 - First of all, follow the instruction to set up an environment for the `parser.py` and `extractor.py` scripts
@@ -187,7 +187,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
    - to run the server in development just perform the command: `python manage.py runserver`
    - to run the server in production, in the `settings.py` change the `DEBUG` variable to `False` and then perform the command as above.
 ## Set up with docker-compose:
-   - **Note: If you decide to set up the projects with docker and docker-compose, disregard the preceding instructons. Do not change any settings/configurations and do not perform any additional command apart from those mentioned below!**
+   - **Note: If you decide to set up the projects with docker and docker-compose, disregard the preceding instructions. Do not change any settings/configurations and do not perform any additional commands apart from those mentioned below!**
    - Alternatively, one can easily have the entire project up and running using docker and docker-compose. If you don't have this software installed on your local machine, you will need to get it installed. (An example of installation on ubuntu: https://phoenixnap.com/kb/install-docker-compose-on-ubuntu-20-04 ). Then the whole process of configuring and running the project will end up to be a single command: `docker-compose up` ( the preceding command should be executed within the directory which contains the `docker-compose.yml` file. )
    - In order to acces the terminal of the desired container, execute the following commands:
         - `docker container ps` - obtain the table of running containers
