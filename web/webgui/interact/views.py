@@ -89,12 +89,12 @@ class ReleaseView(PaginatedMixin, InteractLoginRequiredMixin, View):
         )
     
     def post(self, request, *args, **kwargs):
-        releases, page_range = self.get_paginator(Release.objects.all(), 1)
         release_form = self.release_form_class(request.POST)
         saved = False
         if release_form.is_valid():
             release_form.save()
             saved = True
+        releases, page_range = self.get_paginator(Release.objects.all(), 1)
         return render(
             request,
             self.template_name,
@@ -177,8 +177,8 @@ class ParseView(InteractLoginRequiredMixin, View):
                 if arg:
                     try:
                         valid_from, valid_to = vd.from_params(arg)
-                    except Exception as e:
-                        error = e.args
+                    except Exception:
+                        error = ('Unable to extract validity dates from given parameters.', )
                         return render(
                             request,
                             self.template_name,
@@ -200,8 +200,10 @@ class ParseView(InteractLoginRequiredMixin, View):
                     )
                     sent = True
                     
-                except Exception as e:
-                    error = e.args
+                except Exception:
+                    error = ('''
+                             Unable to write to the database. 
+                             Check if all the constraints meet the requirements.''', )
                     return render(
                         request,
                         self.template_name,

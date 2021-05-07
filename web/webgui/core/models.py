@@ -36,12 +36,16 @@ class SFibersStackCalibratorPar(Configuration):
         db_table = "SFibersStackCalibratorPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
+
 
 class SFibersStackDDLookupTable(Configuration):
     class Meta:
         db_table = "SFibersStackDDLookupTable"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
+
 
 
 class SFibersStackDDUnpackerPar(Configuration):
@@ -49,6 +53,7 @@ class SFibersStackDDUnpackerPar(Configuration):
         db_table = "SFibersStackDDUnpackerPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
 
 
 class SFibersStackDigitizerPar(Configuration):
@@ -56,6 +61,9 @@ class SFibersStackDigitizerPar(Configuration):
         db_table = "SFibersStackDigitizerPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
+
+
     
 
 class SFibersStackGeomPar(Configuration):
@@ -63,6 +71,8 @@ class SFibersStackGeomPar(Configuration):
         db_table = "SFibersStackGeomPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
+
 
 
 class SFibersStackHitFinderFiberPar(Configuration):
@@ -70,6 +80,8 @@ class SFibersStackHitFinderFiberPar(Configuration):
         db_table = "SFibersStackHitFinderFiberPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
+
 
 
 class SFibersStackHitFinderPar(Configuration):
@@ -77,6 +89,8 @@ class SFibersStackHitFinderPar(Configuration):
         db_table = "SFibersStackHitFinderPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
+        unique_together = (('version', 'valid_from'),)
+
 
 
 class Files(models.Model):
