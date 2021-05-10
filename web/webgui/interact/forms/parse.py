@@ -173,6 +173,21 @@ class ParseForm(forms.Form):
         )
     )
     
+    SEARCH_CHOICES = (
+        ('dates', 'dates'),
+        ('runs', 'runs')
+    )
+    
+    search_option = forms.ChoiceField(
+        required=True,
+        choices=SEARCH_CHOICES,
+        widget=forms.widgets.RadioSelect(
+            attrs={
+                'type': 'radio',
+            }
+        )
+    )
+    
     
     def clean(self):
         cleaned_data = super(ParseForm, self).clean()
@@ -182,22 +197,26 @@ class ParseForm(forms.Form):
         valid_to_date = cleaned_data.get('valid_to_date')
         valid_to_time = cleaned_data.get('valid_to_time')
         
-        if valid_from_time and not valid_from_date:
+        search_dates = cleaned_data.get('search_option') == 'dates'
+        search_runs = not search_dates
+        
+        if search_dates and valid_from_time and not valid_from_date:
             raise ValidationError(
                 'The date the configuration is valid from is required if the relevant time is specified.'
             )
             
-        if valid_to_time and not valid_to_date:
+        if search_dates and valid_to_time and not valid_to_date:
             raise ValidationError(
                 'The date the configuration is valid to is required if the relevant time is specified.'
             )
             
-        if (valid_from_date and not valid_to_date) or (valid_to_date and not valid_from_date):
+        if search_dates and (
+            (valid_from_date and not valid_to_date) or (valid_to_date and not valid_from_date)):
             raise ValidationError(
                 'If any of the validity dates is specified, then another one must be given too.'
             )
             
-        if valid_from_date and valid_to_date:
+        if search_dates and valid_from_date and valid_to_date:
             if valid_from_time:
                 self.cleaned_data['valid_from'] = datetime.datetime.combine(
                     valid_from_date, valid_from_time)
@@ -219,15 +238,15 @@ class ParseForm(forms.Form):
         filename_from = cleaned_data.get('filename_from')
         filename_to = cleaned_data.get('filename_to')
         
-        if ( not run_from and run_to ) or ( run_from and not run_to ):
+        if search_runs and ( not run_from and run_to ) or ( run_from and not run_to ):
             raise ValidationError(
                 'If any of the run-id\'s is specified, another one must be provided too.'
             )
-        if ( not filename_from and filename_to ) or ( filename_from and not filename_to ):
+        if search_runs and ( not filename_from and filename_to ) or ( filename_from and not filename_to ):
             raise ValidationError(
                 'If any of the run filenames is specified, another one must be provided too.'
             )
-        if ( run_from and run_to ) or ( filename_from and filename_to ):
+        if search_runs and ( run_from and run_to ) or ( filename_from and filename_to ):
             return self.cleaned_data
         
         raise ValidationError(

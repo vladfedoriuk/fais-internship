@@ -101,6 +101,21 @@ class ExtractForm(forms.Form):
         )
     )
     
+    SEARCH_CHOICES = (
+        ('dates', 'dates'),
+        ('runs', 'runs')
+    )
+    
+    search_option = forms.ChoiceField(
+        required=True,
+        choices=SEARCH_CHOICES,
+        widget=forms.widgets.RadioSelect(
+            attrs={
+                'type': 'radio',
+            }
+        )
+    )
+    
     def clean(self):
         cleaned_data = super(ExtractForm, self).clean()
         
@@ -109,22 +124,26 @@ class ExtractForm(forms.Form):
         valid_to_date = cleaned_data.get('valid_to_date')
         valid_to_time = cleaned_data.get('valid_to_time')
         
-        if valid_from_time and not valid_from_date:
+        search_dates = cleaned_data.get('search_option') == 'dates'
+        search_runs = not search_dates
+        
+        if search_dates and valid_from_time and not valid_from_date:
             raise ValidationError(
                 'The date the configuration is valid from is required if the relevant time is specified.'
             )
             
-        if valid_to_time and not valid_to_date:
+        if search_dates and valid_to_time and not valid_to_date:
             raise ValidationError(
                 'The date the configuration is valid to is required if the relevant time is specified.'
             )
             
-        if (valid_from_date and not valid_to_date) or (valid_to_date and not valid_from_date):
+        if search_dates and (
+            (valid_from_date and not valid_to_date) or (valid_to_date and not valid_from_date)):
             raise ValidationError(
                 'If any of the validity dates is specified, then another one must be given too.'
             )
             
-        if valid_from_date and valid_to_date:
+        if search_dates and valid_from_date and valid_to_date:
             if valid_from_time:
                 self.cleaned_data['valid_from'] = datetime.datetime.combine(
                     valid_from_date, valid_from_time)
@@ -138,13 +157,17 @@ class ExtractForm(forms.Form):
             else:
                 self.cleaned_data['valid_to'] = datetime.datetime.combine(
                     valid_to_date, time(hour=23, minute=59, second=59))
+                
+            return self.cleaned_data
             
-        else: 
+        elif search_runs: 
             run = cleaned_data.get('run')
             filename = cleaned_data.get('filename')
             if not run and not filename:
                 raise ValidationError(
                     'Either run id or filename must be specified if the validity dates are omitted.'
                 )
+                
+            return self.cleaned_data
         
-        return self.cleaned_data
+        raise ValidationError('No valid search options were provided.')

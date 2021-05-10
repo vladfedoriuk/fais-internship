@@ -2,69 +2,83 @@
   <form action={% url "interact:extract" %} method="POST">
     {% csrf_token %}
     
+    <div class="btn-group btn-group-toggle d-flex justify-content-center" data-toggle="buttons">
+      <label class="btn btn-success active" id="dates-option">
+        <input type="radio" name="search_option" autocomplete="off" value="dates" checked> Dates
+      </label>
+      <label class="btn btn-success"  id="runs-option">
+        <input type="radio" name="search_option" autocomplete="off" value="runs"> Runs
+      </label>
+    </div>
+    
+    <br>
+    
     <div class="text-danger">
       {{ form.non_field_errors }}
     </div>
     
-    <div class="row form-group">
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_from_date.errors }}
+    <div id="dates">
+      <div class="row form-group">
+        <div class="col">
+          <div class="text-danger">
+            {{ form.valid_from_date.errors }}
+          </div>
+          {{ form.valid_from_date.label_tag }}
+          {{ form.valid_from_date }}
+          <small id="date-from-help" class="form-text text-muted"> {{ form.valid_from_date.help_text }} </small>
         </div>
-        {{ form.valid_from_date.label_tag }}
-        {{ form.valid_from_date }}
-        <small id="date-from-help" class="form-text text-muted"> {{ form.valid_from_date.help_text }} </small>
+
+        <div class="col">
+          <div class="text-danger">
+            {{ form.valid_from_time.errors }}
+          </div>
+          {{ form.valid_from_time.label_tag }}
+          {{ form.valid_from_time }}
+          <small id="date-time-help" class="form-text text-muted"> {{ form.valid_from_time.help_text }} </small>
+        </div>
       </div>
 
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_from_time.errors }}
+      <div class="row form-group">
+        <div class="col">
+          <div class="text-danger">
+            {{ form.valid_to_date.errors }}
+          </div>
+          {{ form.valid_to_date.label_tag }}
+          {{ form.valid_to_date }}
+          <small id="date-to-help" class="form-text text-muted"> {{ form.valid_to_date.help_text }} </small>
         </div>
-        {{ form.valid_from_time.label_tag }}
-        {{ form.valid_from_time }}
-        <small id="date-time-help" class="form-text text-muted"> {{ form.valid_from_time.help_text }} </small>
+
+        <div class="col">
+          <div class="text-danger">
+            {{ form.valid_to_time.errors }}
+          </div>
+          {{ form.valid_to_time.label_tag }}
+          {{ form.valid_to_time }}
+          <small id="time-to-help" class="form-text text-muted"> {{ form.valid_to_time.help_text }} </small>
+        </div>
       </div>
     </div>
 
-     <div class="row form-group">
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_to_date.errors }}
+    <div id="runs">
+      <div class="row form-group">
+        <div class="col-4">
+          <div class="text-danger">
+            {{ form.run.errors }}
+          </div>
+          {{ form.run.label_tag }}
+          {{ form.run }}
+          <small id="run-help" class="form-text text-muted"> {{ form.run.help_text }} </small>
         </div>
-        {{ form.valid_to_date.label_tag }}
-        {{ form.valid_to_date }}
-        <small id="date-to-help" class="form-text text-muted"> {{ form.valid_to_date.help_text }} </small>
-      </div>
 
-      <div class="col">
-        <div class="text-danger">
-          {{ form.valid_to_time.errors }}
+        <div class="col-4">
+          <div class="text-danger">
+            {{ form.filename.errors }}
+          </div>
+          {{ form.filename.label_tag }}
+          {{ form.filename }}
+          <small id="filename-help" class="form-text text-muted"> {{ form.filename.help_text }} </small>
         </div>
-        {{ form.valid_to_time.label_tag }}
-        {{ form.valid_to_time }}
-        <small id="time-to-help" class="form-text text-muted"> {{ form.valid_to_time.help_text }} </small>
       </div>
-    </div>
-
-    <div class="row form-group">
-      <div class="col-4">
-         <div class="text-danger">
-          {{ form.run.errors }}
-        </div>
-        {{ form.run.label_tag }}
-        {{ form.run }}
-        <small id="run-help" class="form-text text-muted"> {{ form.run.help_text }} </small>
-      </div>
-
-      <div class="col-4">
-         <div class="text-danger">
-          {{ form.filename.errors }}
-        </div>
-        {{ form.filename.label_tag }}
-        {{ form.filename }}
-        <small id="filename-help" class="form-text text-muted"> {{ form.filename.help_text }} </small>
-      </div>
-
     </div>
     
     <div class="row form-group">

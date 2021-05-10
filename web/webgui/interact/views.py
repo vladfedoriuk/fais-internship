@@ -143,7 +143,6 @@ class ParseView(InteractLoginRequiredMixin, View):
         parse_form = self.parse_form_class(request.POST, request.FILES)
         
         sent = False
-
         if parse_form.is_valid():
             cd = parse_form.cleaned_data
             conf_file = handle_uploaded_file(cd['configuration'])
