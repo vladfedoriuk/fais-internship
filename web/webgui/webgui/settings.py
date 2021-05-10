@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # webgui
     'core.apps.CoreConfig',
-    'interact.apps.InteractConfig'
+    'interact.apps.InteractConfig',
+    'api.apps.ApiConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
