@@ -1,6 +1,10 @@
 <div class="container">
   <form action={% url "interact:extract" %} method="POST">
     {% csrf_token %}
+
+    <div class="row form-group text-muted d-flex justify-content-center">
+      <p> Choose a search option (either by dates or by runs). </p>
+    </div>
     
     <div class="btn-group btn-group-toggle d-flex justify-content-center" data-toggle="buttons">
       <label class="btn btn-success active" id="dates-option">

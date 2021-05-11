@@ -16,7 +16,10 @@ def get_serializer(model: Model) -> serializers.ModelSerializer:
     })
         
     class ConfigurationSerializer(serializers.ModelSerializer):
-        pass
+        
+        @classmethod
+        def model_name(cls):
+            return cls.Meta.model.__name__
     
     ConfigurationSerializer.release = ReleaseSerializer()
     ConfigurationSerializer.Meta = Meta

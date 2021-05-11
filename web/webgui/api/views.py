@@ -7,6 +7,7 @@ from core.models import Configuration, Files
 from . import utils
 from .utils.codes import ResponseData
 from rest_framework import status
+from collections import defaultdict
 
 
 class ConfigurationsView(APIView):        
@@ -19,17 +20,17 @@ class ConfigurationsView(APIView):
         if not run:
             return Response(
                 data=ResponseData(
-                    http_status=status.HTTP_400_BAD_REQUEST,
-                    code=utils.codes.CODE_405._asdict(),
+                    http_status=status.HTTP_404_NOT_FOUND,
+                    code=utils.codes.CODE_404._asdict(),
                     message=f'The run with run_id={run_id} was not found.',
                     errors = [],
                     data=None
                 )._asdict(),
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_404_NOT_FOUND
             )
         run = run.first()
             
-        conf_json = list()
+        conf_json = defaultdict(list)
         for conf_model in core_models:
             serializer = get_serializer(conf_model)
             confs = conf_model.objects.filter(
@@ -37,7 +38,7 @@ class ConfigurationsView(APIView):
                 valid_to__gte=run.stop_time
             ).all()
             confs = serializer(confs, many=True)
-            conf_json.extend(x for x in confs.data)
+            conf_json[serializer.model_name()].extend(x for x in confs.data)
             
         if not conf_json:
             return Response(
