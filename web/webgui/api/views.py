@@ -15,7 +15,7 @@ class ConfigurationsView(APIView):
     def get(self, request, run_id):
         core_models = apps.get_app_config('core').get_models()
         core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))
-
+        
         run = Files.objects.filter(run_id=run_id)
         if not run:
             return Response(
@@ -29,6 +29,10 @@ class ConfigurationsView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         run = run.first()
+        
+        version = request.query_params.get('version')
+        if version:
+            version = int(version) 
             
         conf_json = defaultdict(list)
         for conf_model in core_models:
@@ -38,21 +42,52 @@ class ConfigurationsView(APIView):
                 valid_to__gte=run.stop_time
             ).all()
             confs = serializer(confs, many=True)
-            conf_json[serializer.model_name()].extend(x for x in confs.data)
+            
+            if version:
+                versions = [x['version'] for x in confs.data]
+                
+                if version not in versions:
+                    return Response(
+                        data=ResponseData(
+                            http_status=status.HTTP_404_NOT_FOUND,
+                            code=utils.codes.CODE_404._asdict(),
+                            message=f'The version {version} was not found in one or more the tables.',
+                            errors = [],
+                            data=None
+                        )._asdict(),
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+                else:
+                    confs = [x for x in confs.data if x['version'] == version]
+            else:
+                confs = [x for x in confs.data]
+                
+            if not confs:
+                return Response(
+                    data=ResponseData(
+                        http_status=status.HTTP_204_NO_CONTENT,
+                        code=utils.codes.CODE_204._asdict(),
+                        message='Some of the configuration parameters do not exist.',
+                        errors = [],
+                        data=None
+                    )._asdict(),
+                    status=status.HTTP_204_NO_CONTENT
+                )
+                
+            conf_json[serializer.model_name()].extend(confs)
             
         if not conf_json:
             return Response(
                 data=ResponseData(
                     http_status=status.HTTP_204_NO_CONTENT,
                     code=utils.codes.CODE_204._asdict(),
-                    message='OK',
+                    message='OK.',
                     errors = [],
                     data=None
                 )._asdict(),
                 status=status.HTTP_204_NO_CONTENT
             )
-        
-            
+          
         return Response(
             data=ResponseData(
                 http_status=status.HTTP_200_OK,
