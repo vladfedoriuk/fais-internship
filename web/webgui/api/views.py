@@ -8,10 +8,27 @@ from . import utils
 from .utils.codes import ResponseData
 from rest_framework import status
 from collections import defaultdict
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
+version_param = openapi.Parameter(
+    'version', 
+    openapi.IN_QUERY, 
+    description="The version of the parameters.",
+    type=openapi.TYPE_INTEGER
+)
 
-class ConfigurationsView(APIView):        
+class ConfigurationsView(APIView):   
     
+         
+    @swagger_auto_schema(
+        manual_parameters=[version_param],
+        responses={
+            404: utils.codes.CODE_404.text,
+            204: utils.codes.CODE_204.text,
+            200: utils.codes.CODE_200.text,
+        }     
+    )
     def get(self, request, run_id):
         core_models = apps.get_app_config('core').get_models()
         core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))

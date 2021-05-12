@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # webgui
+    'drf_yasg',
     'core.apps.CoreConfig',
     'interact.apps.InteractConfig',
     'api.apps.ApiConfig',
