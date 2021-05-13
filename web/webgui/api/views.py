@@ -46,6 +46,7 @@ class ConfigurationsView(APIView):
         manual_parameters=[version_param, token_header],
         responses={
             404: utils.codes.CODE_404.text,
+            401: utils.codes.CODE_401.text,
             204: utils.codes.CODE_204.text,
             200: utils.codes.CODE_200.text,
         },
