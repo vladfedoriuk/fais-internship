@@ -1,42 +1,44 @@
 from django.db import models
 
+
 class Configuration(models.Model):
     parameters = models.TextField()
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     version = models.IntegerField()
     remarks = models.CharField(max_length=255, blank=True, null=True)
-    release = models.ForeignKey("Release",
-                                on_delete=models.CASCADE,
-                                related_name="%(class)s_versions")
+    release = models.ForeignKey(
+        "Release", on_delete=models.CASCADE, related_name="%(class)s_versions"
+    )
 
     class Meta:
         abstract = True
-        unique_together = (('version', 'valid_from'),)
+        unique_together = (("version", "valid_from"),)
         db_table = "configuration"
-        
- 
+
+
 class Release(models.Model):
     name = models.SlugField(max_length=255, unique=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
-    
+
     def __str__(self):
         return self.__repr__()
-    
+
     def __repr__(self):
         return self.name
-    
+
     class Meta:
         db_table = "Release"
         verbose_name = db_table
-        verbose_name_plural = verbose_name       
+        verbose_name_plural = verbose_name
+
 
 class SFibersStackCalibratorPar(Configuration):
     class Meta:
         db_table = "SFibersStackCalibratorPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
+        unique_together = (("version", "valid_from"),)
 
 
 class SFibersStackDDLookupTable(Configuration):
@@ -44,8 +46,7 @@ class SFibersStackDDLookupTable(Configuration):
         db_table = "SFibersStackDDLookupTable"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
-
+        unique_together = (("version", "valid_from"),)
 
 
 class SFibersStackDDUnpackerPar(Configuration):
@@ -53,7 +54,7 @@ class SFibersStackDDUnpackerPar(Configuration):
         db_table = "SFibersStackDDUnpackerPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
+        unique_together = (("version", "valid_from"),)
 
 
 class SFibersStackDigitizerPar(Configuration):
@@ -61,18 +62,15 @@ class SFibersStackDigitizerPar(Configuration):
         db_table = "SFibersStackDigitizerPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
+        unique_together = (("version", "valid_from"),)
 
-
-    
 
 class SFibersStackGeomPar(Configuration):
     class Meta:
         db_table = "SFibersStackGeomPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
-
+        unique_together = (("version", "valid_from"),)
 
 
 class SFibersStackHitFinderFiberPar(Configuration):
@@ -80,8 +78,7 @@ class SFibersStackHitFinderFiberPar(Configuration):
         db_table = "SFibersStackHitFinderFiberPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
-
+        unique_together = (("version", "valid_from"),)
 
 
 class SFibersStackHitFinderPar(Configuration):
@@ -89,8 +86,7 @@ class SFibersStackHitFinderPar(Configuration):
         db_table = "SFibersStackHitFinderPar"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-        unique_together = (('version', 'valid_from'),)
-
+        unique_together = (("version", "valid_from"),)
 
 
 class Files(models.Model):
@@ -101,9 +97,7 @@ class Files(models.Model):
     run_id = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
-        unique_together = (('run_id', 'start_time', 'stop_time'),)
+        unique_together = (("run_id", "start_time", "stop_time"),)
         db_table = "files"
         verbose_name = db_table
         verbose_name_plural = verbose_name
-
-       

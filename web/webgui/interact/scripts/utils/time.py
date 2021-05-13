@@ -3,8 +3,7 @@ from datetime import datetime
 from django.conf import settings
 
 
-DATETIME_FORMATS = settings.DATETIME_INPUT_FORMATS + \
-    settings.DATE_INPUT_FORMATS
+DATETIME_FORMATS = settings.DATETIME_INPUT_FORMATS + settings.DATE_INPUT_FORMATS
 
 
 def convert_datetime(date_time: datetime) -> str:
@@ -13,4 +12,4 @@ def convert_datetime(date_time: datetime) -> str:
             str_datetime = date_time.strftime(pattern)
             return str_datetime
         except:
-            pass 
+            pass
