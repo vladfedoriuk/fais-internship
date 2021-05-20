@@ -1,0 +1,2 @@
+yay -S cpr
+g++ test.cpp -o test -L. -lcpr
