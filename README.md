@@ -211,4 +211,4 @@ std::map<std::string, Parameter> getRunContainers(long min_runid, long max_runid
 - The second function accepts two parameters:
     - `min_runid` - the id of the run to extract the date the parameters are valid from
     - `max_runid` - the id of the run to extract the date the parameters are valid to.
-    - This function returns a mapping from the name of the module to the structure containing the information baout the parameters. It has been designed to return the parameters with the highest version. 
+    - This function makes a request to the API and returns a mapping from the name of the module to the structure containing the information about the parameters. It has been designed to return the parameters with the highest version. 
