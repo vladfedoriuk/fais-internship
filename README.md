@@ -198,3 +198,17 @@ The repository for the parameters parsing/extracting scripts and webgui.
 ### Remarks:
 - **It is not possible to have two runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
 - **It is not possible to have two configurations with the same `valid_from` and `version`**.
+# CPP REST Client
+- In the folder `rest_client_cpp` there is a source file `test.cpp` containing two functions: 
+```
+void getRunContainer(long runid, unsigned long version);
+std::map<std::string, Parameter> getRunContainers(long min_runid, long max_runid);
+```
+- The first function accepts two parameters: 
+    - `runid` - the id of the run to extract the valididty dates from
+    - `version` - a version of the desired parameters.
+    - It makes a request to the API. Currently, all it does is writing the parameters to the standart output stream.
+- The second function accepts two parameters:
+    - `min_runid` - the id of the run to extract the date the parameters are valid from
+    - `max_runid` - the id of the run to extract the date the parameters are valid to.
+    - This function returns a mapping from the name of the module to the structure containing the information baout the parameters. It has been designed to return the parameters with the highest version. 
