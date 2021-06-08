@@ -1,21 +1,26 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.response import Response
 from .serializers import get_serializer, ReleaseSerializer
 from django.apps import apps
 from core.models import Configuration, Files, Release
 from . import utils
+from .utils import exceptions
 from .utils.codes import ResponseData
 from rest_framework import status
 from collections import defaultdict
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from django.shortcuts import get_object_or_404
 from rest_framework.authentication import (
     SessionAuthentication,
     BasicAuthentication,
     TokenAuthentication,
 )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import APIException
 
 
 version_param = openapi.Parameter(
@@ -71,7 +76,12 @@ class ConfigurationsForRunView(APIView):
 
         version = request.query_params.get("version")
         if version:
-            version = int(version)
+            try:
+                version = int(version)
+                if version < 1:
+                    raise ValueError
+            except (ValueError, TypeError):
+                raise utils.exceptions.InvalidVersion
 
         conf_json = defaultdict(list)
         for conf_model in core_models:
@@ -177,7 +187,12 @@ class ConfigurationsForReleaseView(APIView):
 
             version = request.query_params.get("version")
             if version:
-                version = int(version)
+                try:
+                    version = int(version)
+                    if version < 1:
+                        raise ValueError
+                except (ValueError, TypeError):
+                    raise utils.exceptions.InvalidVersion
 
             conf_json = defaultdict(list)
             for conf_model in core_models:
@@ -307,7 +322,12 @@ class ConfigurationsForRunMinMaxView(APIView):
 
         version = request.query_params.get("version")
         if version:
-            version = int(version)
+            try:
+                version = int(version)
+                if version < 1:
+                    raise ValueError
+            except (ValueError, TypeError):
+                raise utils.exceptions.InvalidVersion
 
         conf_json = defaultdict(list)
         for conf_model in core_models:
@@ -355,3 +375,58 @@ class ConfigurationsForRunMinMaxView(APIView):
             )._asdict(),
             status=status.HTTP_200_OK,
         )
+
+
+class ConfigurationView(ListModelMixin, GenericAPIView):
+
+    authentication_classes = [
+        TokenAuthentication,
+        SessionAuthentication,
+        BasicAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
+    def get_model(self, name):
+        try:
+            model_class = apps.get_app_config("core").get_model(name)
+        except LookupError:
+            raise utils.exceptions.InvalidConfigurationName
+        return model_class
+
+    def get_queryset(self):
+        conf_name = self.kwargs["name"]
+        conf_model = self.get_model(conf_name)
+        return conf_model.objects.all()
+
+    def get_serializer_class(self):
+        conf_name = self.kwargs["name"]
+        conf_model = self.get_model(conf_name)
+        return get_serializer(conf_model)
+
+    def filter_queryset(self, queryset):
+        run = get_object_or_404(Files, run_id=self.kwargs["run_id"])
+        version = self.request.query_params.get("version")
+        new_queryset = queryset.filter(
+            valid_from__lte=run.start_time, valid_to__gte=run.stop_time
+        )
+        if version:
+            try:
+                version = int(version)
+                if version < 1:
+                    raise ValueError
+            except (ValueError, TypeError):
+                raise utils.exceptions.InvalidVersion
+            new_queryset = new_queryset.filter(version=version)
+        return new_queryset
+
+    @swagger_auto_schema(
+        manual_parameters=[version_param, token_header],
+        responses={
+            404: utils.codes.CODE_404.text,
+            401: utils.codes.CODE_401.text,
+            204: utils.codes.CODE_204.text,
+            200: utils.codes.CODE_200.text,
+        },
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)

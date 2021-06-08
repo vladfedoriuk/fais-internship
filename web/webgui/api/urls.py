@@ -20,5 +20,10 @@ urlpatterns = [
         views.ConfigurationsForRunMinMaxView.as_view(),
         name="conf_for_run_min_max",
     ),
+    path(
+        "retrieve/<str:name>/<int:run_id>",
+        views.ConfigurationView.as_view(),
+        name="params_for_class",
+    ),
     path("api-token-auth/", auth_views.obtain_auth_token),
 ]
