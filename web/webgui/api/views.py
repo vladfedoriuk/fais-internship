@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.response import Response
-from .serializers import get_serializer, ReleaseSerializer
+from .serializers import get_serializer, ReleaseSerializer, FilesSerializer
 from django.apps import apps
 from core.models import Configuration, Files, Release
 from . import utils
@@ -21,6 +21,7 @@ from rest_framework.authentication import (
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import APIException
+from rest_framework.serializers import ValidationError
 
 
 version_param = openapi.Parameter(
@@ -377,7 +378,7 @@ class ConfigurationsForRunMinMaxView(APIView):
         )
 
 
-class ConfigurationView(ListModelMixin, GenericAPIView):
+class ConfigurationRetrieveView(ListModelMixin, GenericAPIView):
 
     authentication_classes = [
         TokenAuthentication,
@@ -430,3 +431,30 @@ class ConfigurationView(ListModelMixin, GenericAPIView):
     )
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+
+class FilesCreateView(CreateModelMixin, GenericAPIView):
+    
+    serializer_class = FilesSerializer
+    
+    def get_queryset(self):
+        return Files.objects.all()
+    
+    def perform_create(self, serializer):
+        try:
+            serializer.save(file_name = str(None))
+        except Exception as e:
+            raise ValidationError(e)
+    
+    @swagger_auto_schema(
+        request_body=FilesSerializer,
+        responses={
+            201: FilesSerializer
+        }
+    )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    
+    
+    
+    
