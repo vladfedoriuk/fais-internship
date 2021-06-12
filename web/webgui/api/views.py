@@ -39,6 +39,125 @@ token_header = openapi.Parameter(
 )
 
 
+class LatestConfigurationForRunView(APIView):
+
+    authentication_classes = [
+        TokenAuthentication,
+        SessionAuthentication,
+        BasicAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        manual_parameters=[version_param, token_header],
+        responses={
+            404: utils.codes.CODE_404.text,
+            401: utils.codes.CODE_401.text,
+            204: utils.codes.CODE_204.text,
+            200: utils.codes.CODE_200.text,
+        },
+    )
+    def get(self, request, run_id):
+        core_models = apps.get_app_config("core").get_models()
+        core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))
+
+        run = Files.objects.filter(run_id=run_id)
+        if not run:
+            return Response(
+                data=ResponseData(
+                    http_status=status.HTTP_404_NOT_FOUND,
+                    code=utils.codes.CODE_404._asdict(),
+                    message=f"The run with run_id={run_id} was not found.",
+                    errors=[],
+                    data=None,
+                )._asdict(),
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        run = run.first()
+
+        version = request.query_params.get("version")
+        if version:
+            try:
+                version = int(version)
+                if version < 1:
+                    raise ValueError
+            except (ValueError, TypeError):
+                raise utils.exceptions.InvalidVersion
+
+        conf_json = defaultdict(list)
+        for conf_model in core_models:
+            serializer = get_serializer(conf_model)
+            confs = conf_model.objects.filter(
+                valid_from__lte=run.start_time, valid_to__gte=run.stop_time
+            ).all()
+
+            if version:
+                versions = [x["version"] for x in confs.data]
+
+                if version not in versions:
+                    return Response(
+                        data=ResponseData(
+                            http_status=status.HTTP_404_NOT_FOUND,
+                            code=utils.codes.CODE_404._asdict(),
+                            message=f"The version {version} was not found in one or more of the tables.",
+                            errors=[],
+                            data=None,
+                        )._asdict(),
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                else:
+                    confs = [x for x in confs if x.version == version]
+            else:
+                confs = [x for x in confs]
+
+            if not confs:
+                return Response(
+                    data=ResponseData(
+                        http_status=status.HTTP_204_NO_CONTENT,
+                        code=utils.codes.CODE_204._asdict(),
+                        message="Some of the configuration parameters do not exist.",
+                        errors=[],
+                        data=None,
+                    )._asdict(),
+                    status=status.HTTP_204_NO_CONTENT,
+                )
+
+            conf_json[serializer.model_name()].extend(confs)
+
+        if not conf_json:
+            return Response(
+                data=ResponseData(
+                    http_status=status.HTTP_204_NO_CONTENT,
+                    code=utils.codes.CODE_204._asdict(),
+                    message="OK.",
+                    errors=[],
+                    data=None,
+                )._asdict(),
+                status=status.HTTP_204_NO_CONTENT,
+            )
+
+        confs = next(iter(conf_json.values()))
+        max_id, max_valid_from, _ = max(
+            ((i, x.valid_from, version) for i, x in enumerate(confs)),
+            key=lambda x: tuple(x[1:]),
+        )
+        max_valid_to = confs[max_id].valid_to
+        return Response(
+            data=ResponseData(
+                http_status=status.HTTP_200_OK,
+                code=utils.codes.CODE_200._asdict(),
+                message="OK",
+                errors=[],
+                data={
+                    "valid_from": max_valid_from.strftime("%Y-%m-%dT%H:%M"),
+                    "valid_to": max_valid_to.strftime("%Y-%m-%dT%H:%M"),
+                    "run_id": run_id,
+                },
+            )._asdict(),
+            status=status.HTTP_200_OK,
+        )
+
+
 class ConfigurationsForRunView(APIView):
 
     authentication_classes = [
@@ -434,27 +553,18 @@ class ConfigurationRetrieveView(ListModelMixin, GenericAPIView):
 
 
 class FilesCreateView(CreateModelMixin, GenericAPIView):
-    
+
     serializer_class = FilesSerializer
-    
+
     def get_queryset(self):
         return Files.objects.all()
-    
+
     def perform_create(self, serializer):
         try:
-            serializer.save(file_name = str(None))
+            serializer.save(file_name=str(None))
         except Exception as e:
             raise ValidationError(e)
-    
-    @swagger_auto_schema(
-        request_body=FilesSerializer,
-        responses={
-            201: FilesSerializer
-        }
-    )
+
+    @swagger_auto_schema(request_body=FilesSerializer, responses={201: FilesSerializer})
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
-    
-    
-    
-    

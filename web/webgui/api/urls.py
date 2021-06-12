@@ -26,9 +26,10 @@ urlpatterns = [
         name="params_for_class",
     ),
     path(
-        "runs/",
-        views.FilesCreateView.as_view(),
-        name="runs_create"
+        "retrieve/validity/latest/<int:run_id>/",
+        views.LatestConfigurationForRunView.as_view(),
+        name="latest_validity_for_run",
     ),
+    path("runs/", views.FilesCreateView.as_view(), name="runs_create"),
     path("api-token-auth/", auth_views.obtain_auth_token),
 ]
