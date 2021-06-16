@@ -5,6 +5,7 @@ networks:
   
 volumes:
   db:
+  .:
 
 services:
 

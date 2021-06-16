@@ -40,8 +40,47 @@ token_header = openapi.Parameter(
     type=openapi.TYPE_STRING,
 )
 
+class UtilsMixIn:
+    @staticmethod
+    def get_run(run_id):
+        try:
+            run = Files.objects.get(run_id=run_id)
+        except Files.DoesNotExist:
+            raise utils.exceptions.InvalidRunId(
+                detail=f"The run with run_id={run_id} was not found.")
+        except Files.MultipleObjectsReturned:
+            raise utils.exceptions.InvalidRunId(
+                detail=f"There are more than one run with run_id={run_id}"
+            )
+        return run
+    
+    @staticmethod
+    def check_version(version):
+        try:
+            version = int(version)
+            if version < 1:
+                raise ValueError
+        except (ValueError, TypeError):
+            raise utils.exceptions.InvalidVersion
+    
+    @staticmethod
+    def response_from_api_exception(e):
+        return Response(
+            data=ResponseData(
+                http_status=e.status_code,
+                code=getattr(
+                    utils.codes, 
+                    f'CODE_{e.status_code}'
+                )._asdict(),
+                message=e.detail,
+                errors=[repr(e)],
+                data=None,
+            )._asdict(),
+            status=e.status_code,
+        )
+        
 
-class LatestConfigurationValidityDatesForRunMinMaxView(APIView):
+class LatestConfigurationValidityDatesForRunMinMaxView(UtilsMixIn, APIView):
 
     authentication_classes = [
         TokenAuthentication,
@@ -63,42 +102,18 @@ class LatestConfigurationValidityDatesForRunMinMaxView(APIView):
         core_models = apps.get_app_config("core").get_models()
         core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))
 
-        run_min = Files.objects.filter(run_id=min_run_id)
-        run_max = Files.objects.filter(run_id=max_run_id)
-
-        if not run_min:
-            return Response(
-                data=ResponseData(
-                    http_status=status.HTTP_404_NOT_FOUND,
-                    code=utils.codes.CODE_404._asdict(),
-                    message=f"The run with run_id={min_run_id} was not found.",
-                    errors=[],
-                    data=None,
-                )._asdict(),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        if not run_max:
-            return Response(
-                data=ResponseData(
-                    http_status=status.HTTP_404_NOT_FOUND,
-                    code=utils.codes.CODE_404._asdict(),
-                    message=f"The run with run_id={max_run_id} was not found.",
-                    errors=[],
-                    data=None,
-                )._asdict(),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        run_min = run_min.first()
-        run_max = run_max.first()
-
+        try:
+            run_min = self.get_run(run_id=min_run_id)
+            run_max = self.get_run(run_id=max_run_id)
+        except utils.exceptions.InvalidRunId as e:
+            return self.response_from_api_exception(e)
+            
         version = request.query_params.get("version")
         if version:
             try:
-                version = int(version)
-                if version < 1:
-                    raise ValueError
-            except (ValueError, TypeError):
-                raise utils.exceptions.InvalidVersion
+                self.check_version(version)
+            except utils.exceptions.InvalidVersion as e:
+                return self.response_from_api_exception(e)
 
         conf_json = defaultdict(list)
         for conf_model in core_models:
@@ -121,7 +136,7 @@ class LatestConfigurationValidityDatesForRunMinMaxView(APIView):
                 )
 
             conf_json[conf_model.__class__.__name__].extend(confs)
-            
+
         if not conf_json:
             return Response(
                 data=ResponseData(
@@ -136,13 +151,12 @@ class LatestConfigurationValidityDatesForRunMinMaxView(APIView):
 
         confs = next(iter(conf_json.values()))
         res = []
-        for _, g in groupby(confs, key=attrgetter('valid_from')):
-            max_version = max(g, key=attrgetter('version'))
-            res.append({
-                'valid_from': max_version.valid_from,
-                'valid_to': max_version.valid_to
-            })
-        
+        for _, g in groupby(confs, key=attrgetter("valid_from")):
+            max_version = max(g, key=attrgetter("version"))
+            res.append(
+                {"valid_from": max_version.valid_from, "valid_to": max_version.valid_to}
+            )
+
         return Response(
             data=ResponseData(
                 http_status=status.HTTP_200_OK,
@@ -153,10 +167,9 @@ class LatestConfigurationValidityDatesForRunMinMaxView(APIView):
             )._asdict(),
             status=status.HTTP_200_OK,
         )
-         
 
 
-class LatestConfigurationValidityDatesForRunView(APIView):
+class LatestConfigurationValidityDatesForRunView(UtilsMixIn, APIView):
 
     authentication_classes = [
         TokenAuthentication,
@@ -178,29 +191,18 @@ class LatestConfigurationValidityDatesForRunView(APIView):
         core_models = apps.get_app_config("core").get_models()
         core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))
 
-        run = Files.objects.filter(run_id=run_id)
-        if not run:
-            return Response(
-                data=ResponseData(
-                    http_status=status.HTTP_404_NOT_FOUND,
-                    code=utils.codes.CODE_404._asdict(),
-                    message=f"The run with run_id={run_id} was not found.",
-                    errors=[],
-                    data=None,
-                )._asdict(),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        run = run.first()
+        try:
+            run = self.get_run(run_id=run_id)
+        except utils.exceptions.InvalidRunId as e:
+            return self.response_from_api_exception(e)
 
         version = request.query_params.get("version")
         if version:
             try:
-                version = int(version)
-                if version < 1:
-                    raise ValueError
-            except (ValueError, TypeError):
-                raise utils.exceptions.InvalidVersion
-
+                self.check_version(version)
+            except utils.exceptions.InvalidVersion as e:
+                return self.response_from_api_exception(e)
+            
         conf_json = defaultdict(list)
         for conf_model in core_models:
             confs = conf_model.objects.filter(
@@ -208,23 +210,7 @@ class LatestConfigurationValidityDatesForRunView(APIView):
             ).all()
 
             if version:
-                versions = [x["version"] for x in confs.data]
-
-                if version not in versions:
-                    return Response(
-                        data=ResponseData(
-                            http_status=status.HTTP_404_NOT_FOUND,
-                            code=utils.codes.CODE_404._asdict(),
-                            message=f"The version {version} was not found in one or more of the tables.",
-                            errors=[],
-                            data=None,
-                        )._asdict(),
-                        status=status.HTTP_404_NOT_FOUND,
-                    )
-                else:
-                    confs = [x for x in confs if x.version == version]
-            else:
-                confs = [x for x in confs]
+                confs = confs.filter(version=version)
 
             if not confs:
                 return Response(
@@ -274,7 +260,7 @@ class LatestConfigurationValidityDatesForRunView(APIView):
         )
 
 
-class ConfigurationsForRunView(APIView):
+class ConfigurationsForRunView(UtilsMixIn, APIView):
 
     authentication_classes = [
         TokenAuthentication,
@@ -296,29 +282,18 @@ class ConfigurationsForRunView(APIView):
         core_models = apps.get_app_config("core").get_models()
         core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))
 
-        run = Files.objects.filter(run_id=run_id)
-        if not run:
-            return Response(
-                data=ResponseData(
-                    http_status=status.HTTP_404_NOT_FOUND,
-                    code=utils.codes.CODE_404._asdict(),
-                    message=f"The run with run_id={run_id} was not found.",
-                    errors=[],
-                    data=None,
-                )._asdict(),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        run = run.first()
+        try:
+            run = self.get_run(run_id=run_id)
+        except utils.exceptions.InvalidRunId as e:
+            return self.response_from_api_exception(e)
 
         version = request.query_params.get("version")
         if version:
             try:
-                version = int(version)
-                if version < 1:
-                    raise ValueError
-            except (ValueError, TypeError):
-                raise utils.exceptions.InvalidVersion
-
+                self.check_version(version)
+            except utils.exceptions.InvalidVersion as e:
+                return self.response_from_api_exception(e)
+            
         conf_json = defaultdict(list)
         for conf_model in core_models:
             serializer = get_serializer(conf_model)
@@ -384,7 +359,7 @@ class ConfigurationsForRunView(APIView):
         )
 
 
-class ConfigurationsForReleaseView(APIView):
+class ConfigurationsForReleaseView(UtilsMixIn, APIView):
     authentication_classes = [
         TokenAuthentication,
         SessionAuthentication,
@@ -409,7 +384,7 @@ class ConfigurationsForReleaseView(APIView):
                 data=ResponseData(
                     http_status=status.HTTP_404_NOT_FOUND,
                     code=utils.codes.CODE_404._asdict(),
-                    message=f"The release with run_id={release_name} was not found.",
+                    message=f"The release with name={release_name} was not found.",
                     errors=[repr(e)],
                     data=None,
                 )._asdict(),
@@ -424,11 +399,9 @@ class ConfigurationsForReleaseView(APIView):
             version = request.query_params.get("version")
             if version:
                 try:
-                    version = int(version)
-                    if version < 1:
-                        raise ValueError
-                except (ValueError, TypeError):
-                    raise utils.exceptions.InvalidVersion
+                    self.check_version(version)
+                except utils.exceptions.InvalidVersion as e:
+                    return self.response_from_api_exception(e)
 
             conf_json = defaultdict(list)
             for conf_model in core_models:
@@ -441,7 +414,10 @@ class ConfigurationsForReleaseView(APIView):
                         data=ResponseData(
                             http_status=status.HTTP_204_NO_CONTENT,
                             code=utils.codes.CODE_204._asdict(),
-                            message=f"{conf_model.__name__} does not have releases assigned to its versions.",
+                            message=f"""
+                            None of versions of {conf_model.__name__} 
+                            has been assigned to a release {release_name}
+                            """,
                             errors=[],
                             data=None,
                         )._asdict(),
@@ -506,7 +482,7 @@ class ConfigurationsForReleaseView(APIView):
             )
 
 
-class ConfigurationsForRunMinMaxView(APIView):
+class ConfigurationsForRunMinMaxView(UtilsMixIn, APIView):
 
     authentication_classes = [
         TokenAuthentication,
@@ -514,6 +490,7 @@ class ConfigurationsForRunMinMaxView(APIView):
         BasicAuthentication,
     ]
     permission_classes = [IsAuthenticated]
+    
 
     @swagger_auto_schema(
         manual_parameters=[version_param, token_header],
@@ -528,42 +505,18 @@ class ConfigurationsForRunMinMaxView(APIView):
         core_models = apps.get_app_config("core").get_models()
         core_models = list(filter(lambda x: issubclass(x, Configuration), core_models))
 
-        run_min = Files.objects.filter(run_id=min_run_id)
-        run_max = Files.objects.filter(run_id=max_run_id)
-
-        if not run_min:
-            return Response(
-                data=ResponseData(
-                    http_status=status.HTTP_404_NOT_FOUND,
-                    code=utils.codes.CODE_404._asdict(),
-                    message=f"The run with run_id={min_run_id} was not found.",
-                    errors=[],
-                    data=None,
-                )._asdict(),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        if not run_max:
-            return Response(
-                data=ResponseData(
-                    http_status=status.HTTP_404_NOT_FOUND,
-                    code=utils.codes.CODE_404._asdict(),
-                    message=f"The run with run_id={max_run_id} was not found.",
-                    errors=[],
-                    data=None,
-                )._asdict(),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        run_min = run_min.first()
-        run_max = run_max.first()
-
+        try:
+            run_min = self.get_run(run_id=min_run_id)
+            run_max = self.get_run(run_id=max_run_id)
+        except utils.exceptions.InvalidRunId as e:
+            return self.response_from_api_exception(e)
+           
         version = request.query_params.get("version")
         if version:
             try:
-                version = int(version)
-                if version < 1:
-                    raise ValueError
-            except (ValueError, TypeError):
-                raise utils.exceptions.InvalidVersion
+                self.check_version(version)
+            except utils.exceptions.InvalidVersion as e:
+                return self.response_from_api_exception(e)
 
         conf_json = defaultdict(list)
         for conf_model in core_models:
@@ -613,7 +566,7 @@ class ConfigurationsForRunMinMaxView(APIView):
         )
 
 
-class ConfigurationRetrieveView(ListModelMixin, GenericAPIView):
+class ConfigurationRetrieveView(UtilsMixIn, ListModelMixin, GenericAPIView):
 
     authentication_classes = [
         TokenAuthentication,
@@ -628,7 +581,7 @@ class ConfigurationRetrieveView(ListModelMixin, GenericAPIView):
         except LookupError:
             raise utils.exceptions.InvalidConfigurationName
         return model_class
-
+        
     def get_queryset(self):
         conf_name = self.kwargs["name"]
         conf_model = self.get_model(conf_name)
@@ -640,19 +593,16 @@ class ConfigurationRetrieveView(ListModelMixin, GenericAPIView):
         return get_serializer(conf_model)
 
     def filter_queryset(self, queryset):
-        run = get_object_or_404(Files, run_id=self.kwargs["run_id"])
+        run = self.get_run(self.kwargs["run_id"])
         version = self.request.query_params.get("version")
         new_queryset = queryset.filter(
             valid_from__lte=run.start_time, valid_to__gte=run.stop_time
         )
         if version:
-            try:
-                version = int(version)
-                if version < 1:
-                    raise ValueError
-            except (ValueError, TypeError):
-                raise utils.exceptions.InvalidVersion
+            self.check_version(version)
             new_queryset = new_queryset.filter(version=version)
+        if not new_queryset.exists():
+            raise utils.exceptions.EmptyQueryset
         return new_queryset
 
     @swagger_auto_schema(
