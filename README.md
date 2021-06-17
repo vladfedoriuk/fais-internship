@@ -198,6 +198,38 @@ The repository for the parameters parsing/extracting scripts and webgui.
 ### Remarks:
 - **It is not possible to have two runs in the `files` table with the same `run_id`,`start_time` and `stop_time`**.
 - **It is not possible to have two configurations with the same `valid_from` and `version`**.
+
+# REST API
+- The service also presents the REST API. The list of endpoints with the information about the accepted parameters as well as response statuses and bodies is accessible via `/swagger` url.
+- ![api](https://user-images.githubusercontent.com/51965488/122314559-b521fb80-cf18-11eb-9a23-a22caee28c8b.png)
+- All the endpoints require the user authentication. Token authentication can be executed via providing the `Token` header. It must be formatted as:
+    ```
+    Token <token value>
+    ```
+ In order to be properly interpreted by the back-end.
+- `/api-token-auth/` is responsible for authenticating the users. It expects a json:
+    ```
+    {
+        "username": "string",
+        "password": "string"
+    }
+    ```
+    and returns the authentication token if the provided data were correct. The token can later be used as a header value in authenticated requests.
+- `/runs/` is used to add a new run file to the database. It expects a json:
+    ```
+    {
+        "start_time": "2021-06-17T01:08:29.390Z",
+        "stop_time": "2021-06-17T01:08:29.390Z",
+        "run_id": 0
+    }
+    ``` 
+    Run filename and the optional comment do not need to get provided and will be set to None.
+- `retrieve/{run_id}/ ` returns a json with all the configuration versions whose validity dates correspond to the run with such an id. All the versions to be included get grouped by the classes they belong to.
+- `retrieve/{name}/{run_id}` - does the same as `retrieve/{run_id}` but only for the configuration class named with `name`.
+- `retrieve/{min_run_id}/{max_run_id}` does the same as `retrieve/{run_id}` but for a range of run indices: `[min_run_id, max_run_id]`.
+- `retrieve/release/{release_name}` - returns all the configurations assigned to a release with name `relese_name`.
+- `retrieve/validity/latest/{run_id}` - returns the configuration version with latest `valid_from` and the highest `version` for a run with run id equal to `run_id`.
+- `retrieve/validity/latest/{min_run_id}/{max_run_id}` - does the same as `retrieve/validity/latest/{run_id}` but for a range of run indices: `[min_run_id, max_run_id]`.
 # CPP REST Client
 - In the folder `rest_client_cpp` there is a source file `test.cpp` containing two functions: 
 ```
