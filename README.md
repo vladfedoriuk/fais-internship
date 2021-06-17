@@ -230,6 +230,7 @@ The repository for the parameters parsing/extracting scripts and webgui.
 - `retrieve/release/{release_name}` - returns all the configurations assigned to a release with name `release_name`.
 - `retrieve/validity/latest/{run_id}` - returns the configuration version with latest `valid_from` and the highest `version` for a run with run id equal to `run_id`.
 - `retrieve/validity/latest/{min_run_id}/{max_run_id}` - does the same as `retrieve/validity/latest/{run_id}` but for a range of run indices: `[min_run_id, max_run_id]`.
+- Some of the endpoints also accept the optional `version` in-query parameter to return the configurations with a specific version. 
 # CPP REST Client
 - In the folder `rest_client_cpp` there is a source file `test.cpp` containing two functions: 
 ```
