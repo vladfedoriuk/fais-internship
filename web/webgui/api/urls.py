@@ -36,5 +36,5 @@ urlpatterns = [
         name="latest_validity_for_run_min_max",
     ),
     path("runs/", views.FilesCreateView.as_view(), name="runs_create"),
-    path("api-token-auth/", auth_views.obtain_auth_token),
+    path("api-token-auth/", auth_views.obtain_auth_token, name="token_for_user"),
 ]

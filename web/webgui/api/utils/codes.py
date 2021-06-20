@@ -6,7 +6,7 @@ ResponseData = namedtuple(
 )
 CodeData = namedtuple("CodeData", ["code", "text"])
 
-CODE_400 = CodeData(400, 'Invalid request.')
+CODE_400 = CodeData(400, "Invalid request.")
 CODE_404 = CodeData(404, "Item was not found.")
 CODE_401 = CodeData(401, "Unauthorized.")
 CODE_200 = CodeData(200, "OK.")

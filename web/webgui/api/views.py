@@ -40,6 +40,7 @@ token_header = openapi.Parameter(
     type=openapi.TYPE_STRING,
 )
 
+
 class UtilsMixIn:
     @staticmethod
     def get_run(run_id):
@@ -47,13 +48,14 @@ class UtilsMixIn:
             run = Files.objects.get(run_id=run_id)
         except Files.DoesNotExist:
             raise utils.exceptions.InvalidRunId(
-                detail=f"The run with run_id={run_id} was not found.")
+                detail=f"The run with run_id={run_id} was not found."
+            )
         except Files.MultipleObjectsReturned:
             raise utils.exceptions.InvalidRunId(
                 detail=f"There are more than one run with run_id={run_id}"
             )
         return run
-    
+
     @staticmethod
     def check_version(version):
         try:
@@ -62,23 +64,20 @@ class UtilsMixIn:
                 raise ValueError
         except (ValueError, TypeError):
             raise utils.exceptions.InvalidVersion
-    
+
     @staticmethod
     def response_from_api_exception(e):
         return Response(
             data=ResponseData(
                 http_status=e.status_code,
-                code=getattr(
-                    utils.codes, 
-                    f'CODE_{e.status_code}'
-                )._asdict(),
+                code=getattr(utils.codes, f"CODE_{e.status_code}")._asdict(),
                 message=e.detail,
                 errors=[repr(e)],
                 data=None,
             )._asdict(),
             status=e.status_code,
         )
-        
+
 
 class LatestConfigurationValidityDatesForRunMinMaxView(UtilsMixIn, APIView):
 
@@ -107,7 +106,7 @@ class LatestConfigurationValidityDatesForRunMinMaxView(UtilsMixIn, APIView):
             run_max = self.get_run(run_id=max_run_id)
         except utils.exceptions.InvalidRunId as e:
             return self.response_from_api_exception(e)
-            
+
         version = request.query_params.get("version")
         if version:
             try:
@@ -202,7 +201,7 @@ class LatestConfigurationValidityDatesForRunView(UtilsMixIn, APIView):
                 self.check_version(version)
             except utils.exceptions.InvalidVersion as e:
                 return self.response_from_api_exception(e)
-            
+
         conf_json = defaultdict(list)
         for conf_model in core_models:
             confs = conf_model.objects.filter(
@@ -293,7 +292,7 @@ class ConfigurationsForRunView(UtilsMixIn, APIView):
                 self.check_version(version)
             except utils.exceptions.InvalidVersion as e:
                 return self.response_from_api_exception(e)
-            
+
         conf_json = defaultdict(list)
         for conf_model in core_models:
             serializer = get_serializer(conf_model)
@@ -490,7 +489,6 @@ class ConfigurationsForRunMinMaxView(UtilsMixIn, APIView):
         BasicAuthentication,
     ]
     permission_classes = [IsAuthenticated]
-    
 
     @swagger_auto_schema(
         manual_parameters=[version_param, token_header],
@@ -510,7 +508,7 @@ class ConfigurationsForRunMinMaxView(UtilsMixIn, APIView):
             run_max = self.get_run(run_id=max_run_id)
         except utils.exceptions.InvalidRunId as e:
             return self.response_from_api_exception(e)
-           
+
         version = request.query_params.get("version")
         if version:
             try:
@@ -581,7 +579,7 @@ class ConfigurationRetrieveView(UtilsMixIn, ListModelMixin, GenericAPIView):
         except LookupError:
             raise utils.exceptions.InvalidConfigurationName
         return model_class
-        
+
     def get_queryset(self):
         conf_name = self.kwargs["name"]
         conf_model = self.get_model(conf_name)
@@ -620,6 +618,13 @@ class ConfigurationRetrieveView(UtilsMixIn, ListModelMixin, GenericAPIView):
 
 class FilesCreateView(CreateModelMixin, GenericAPIView):
 
+    authentication_classes = [
+        TokenAuthentication,
+        SessionAuthentication,
+        BasicAuthentication,
+    ]
+    permission_classes = [IsAuthenticated]
+
     serializer_class = FilesSerializer
 
     def get_queryset(self):
@@ -631,6 +636,10 @@ class FilesCreateView(CreateModelMixin, GenericAPIView):
         except Exception as e:
             raise ValidationError(e)
 
-    @swagger_auto_schema(request_body=FilesSerializer, responses={201: FilesSerializer})
+    @swagger_auto_schema(
+        manual_parameters=[token_header],
+        request_body=FilesSerializer,
+        responses={201: FilesSerializer},
+    )
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)

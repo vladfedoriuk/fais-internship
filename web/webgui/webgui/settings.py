@@ -143,7 +143,7 @@ REST_FRAMEWORK = {
 }
 
 DEFAULT_ADMIN = {
-    'username': 'admin',
-    'password': 'pass4admin',
-    'email': 'vlad.fedoriuk2000@gmail.com'
+    "username": "admin",
+    "password": "pass4admin",
+    "email": "vlad.fedoriuk2000@gmail.com",
 }

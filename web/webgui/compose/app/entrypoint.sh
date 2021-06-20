@@ -11,4 +11,6 @@ python manage.py initadmin
 
 python manage.py createtokens
 
+python manage.py test
+
 python manage.py runserver 0.0.0.0:9081
